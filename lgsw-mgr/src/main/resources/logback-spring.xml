@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<configuration>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<!-- ?<include resource="org/springframework/boot/logging/logback/console-appender.xml" /> -->  <!-- 关闭控制台日志打印 -->
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
+     <appender name="TIME_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+        <file>${LOG_FILE}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxHistory>5</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+     </appender>
+     <root level="INFO">
+        <appender-ref ref="TIME_FILE" />
+        <!-- <appender-ref ref="CONSOLE" /> -->    <!-- 关闭控制台日志打印 -->
+     </root>
+	</configuration>
+                                                             
+                                                             

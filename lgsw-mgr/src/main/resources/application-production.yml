@@ -1,0 +1,7 @@
+logging:
+    file: /mntdata/logs/confcontrol/${spring.application.name}.log 
+    config: classpath:logback-spring.xml
+    level:
+        root: WARN
+        org.springframework: INFO
+        com.mhearts: INFO

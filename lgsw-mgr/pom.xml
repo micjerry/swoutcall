@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+  <parent>
+    <groupId>com.lige</groupId>
+    <artifactId>lgsw-parent</artifactId>
+    <version>1.1.0</version>
+  </parent>
+  
+  <artifactId>lgsw-mgr</artifactId>
+  <name>lgsw-mgr</name>
+  <packaging>jar</packaging>
+
+  <dependencies>
+	<dependency>
+	  <groupId>org.springframework.boot</groupId>
+	  <artifactId>spring-boot</artifactId>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework.boot</groupId>
+	  <artifactId>spring-boot-starter-web</artifactId>
+	</dependency>
+	<dependency>
+	  <groupId>org.springframework.boot</groupId>
+	  <artifactId>spring-boot-starter-undertow</artifactId>
+	</dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-actuator</artifactId>
+	</dependency>
+
+	<dependency>
+	  <groupId>org.apache.camel</groupId>
+	  <artifactId>camel-spring-boot-starter</artifactId>
+	</dependency>
+	<dependency>
+      <groupId>org.apache.camel</groupId>
+	  <artifactId>camel-stream-starter</artifactId>
+	</dependency>
+	<dependency>
+	  <groupId>org.apache.camel</groupId>
+	  <artifactId>camel-rabbitmq-starter</artifactId>
+	</dependency>
+	<dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-netty-http</artifactId>
+    </dependency>
+	<dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jackson</artifactId>
+    </dependency>
+	<dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-http4</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.lige</groupId>
+      <artifactId>lgsw-api</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.lige</groupId>
+      <artifactId>lgsw-callimpl</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.lige</groupId>
+      <artifactId>sw-common-call</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+  </dependencies>
+	
+  <build>
+	<plugins>
+	  <plugin>
+	    <groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-maven-plugin</artifactId>
+		<configuration>
+		  <executable>true</executable>
+		</configuration>
+		<version>${spring.boot-version}</version>
+		<executions>
+		  <execution>
+		    <goals>
+		      <goal>repackage</goal>
+	        </goals>
+		  </execution>
+		</executions>
+      </plugin>
+	</plugins>
+	<finalName>${project.artifactId}</finalName>
+  </build>
+</project>
