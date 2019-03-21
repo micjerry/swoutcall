@@ -8,7 +8,7 @@ import com.lige.call.api.cmd.SwCallReceiptCallback;
 import com.lige.call.mgr.protocol.SwCallMgrProtocol;
 
 @Component("httpresponseBean")
-public class HttpResponseBean implements Processor {
+public class SwCallHttpResponseBean implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		SwCallReceiptCallback callback = exchange.getIn().
 				getHeader(SwCallMgrProtocol.SWCALL_CALLBACK_HEADER, SwCallReceiptCallback.class);

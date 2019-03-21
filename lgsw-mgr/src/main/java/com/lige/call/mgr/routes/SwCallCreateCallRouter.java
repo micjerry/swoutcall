@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.lige.call.api.exe.SwCallExecutor;
 import com.lige.call.api.exe.SwCallExecutorFactory;
-import com.lige.call.mgr.beans.HttpResponseBean;
+import com.lige.call.mgr.beans.SwCallHttpResponseBean;
 import com.lige.call.mgr.config.RabbitmqConfig;
 import com.lige.common.call.api.oper.SwCommonCallSessionCreatePojo;
 
@@ -32,7 +32,7 @@ public class SwCallCreateCallRouter extends RouteBuilder {
 	private RabbitmqConfig config;
 	
 	@Autowired
-	private HttpResponseBean responseHandler;
+	private SwCallHttpResponseBean responseHandler;
 	
 	
 	@Value("${conf.cc.host}")
@@ -47,7 +47,7 @@ public class SwCallCreateCallRouter extends RouteBuilder {
 		fromUrl.append(host);
 		fromUrl.append(":");
 		fromUrl.append(port);
-		fromUrl.append("/call/createcall");
+		fromUrl.append("/swcall/createcall");
 		from(fromUrl.toString()).unmarshal().json(JsonLibrary.Jackson, SwCommonCallSessionCreatePojo.class)
 		.process(new Processor() {
 			public void process(Exchange exchange) throws Exception {
@@ -70,8 +70,8 @@ public class SwCallCreateCallRouter extends RouteBuilder {
 					logger.error("Failed to create call no calltask id");
 					return;
 				}
-				SwCallExecutorRouter confrenceControl = new SwCallExecutorRouter(id, executor, config, responseHandler);
-				context.addRoutes(confrenceControl);
+				SwCallExecutorRouter callctrl = new SwCallExecutorRouter(id, executor, config, body.getSwid(), responseHandler);
+				context.addRoutes(callctrl);
 			}
 		});
 

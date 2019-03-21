@@ -3,15 +3,21 @@ package com.lige.call.impl.beans;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.lige.call.impl.api.SwCallCdr;
 import com.lige.call.impl.api.SwCallOperateHandler;
 import com.lige.call.impl.api.SwCallSwitchEventHandler;
 import com.lige.call.impl.api.SwCallTask;
 import com.lige.call.impl.api.SwCallTimerTask;
 import com.lige.common.call.api.oper.SwCommonCallDialog;
+import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 import com.lige.common.call.api.oper.SwCommonCallSessionCreatePojo;
 
 public class SwCallTaskImpl implements SwCallTask {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	private String id;
 	
 	private String userId;
@@ -21,6 +27,8 @@ public class SwCallTaskImpl implements SwCallTask {
 	private String callerNumber;
 	
 	private String calleeNumber;
+	
+	private String switchHost;
 	
 	private String gateWay;
 	
@@ -43,6 +51,7 @@ public class SwCallTaskImpl implements SwCallTask {
 		this.robotId = req.getRobotid();
 		this.callerNumber = req.getCallernumber();
 		this.calleeNumber = req.getCalleenumber();
+		this.switchHost = req.getSwid();
 		this.gateWay = req.getGateway();
 		this.maxDuration = req.getMaxduration();
 		this.dialog = req.getDialog();
@@ -52,6 +61,7 @@ public class SwCallTaskImpl implements SwCallTask {
 		this.eventHandlers = eventHandlers;
 		
 		assistImpl = new SwCallTaskAssistImpl(this);
+		assistImpl.initialize();
 	}
 
 	@Override
@@ -111,7 +121,7 @@ public class SwCallTaskImpl implements SwCallTask {
 	
 	@Override
 	public Map<String, SwCallTimerTask> getTimerTasks() {
-		return null;
+		return assistImpl.getTimertasks();
 	}
 	
 	@Override
@@ -139,8 +149,61 @@ public class SwCallTaskImpl implements SwCallTask {
 		return assistImpl;
 	}
 	
+	@Override
 	public SwCallCdr getCdr() {
 		return assistImpl;
+	}
+
+	@Override
+	public String getSwitchHost() {
+		return switchHost;
+	}
+	
+	@Override
+	public void setStage(CallStage stage) {
+		switch (stage) {
+		case CALL_STAGE_INITIAL:
+			assistImpl.callInitialed();
+			break;
+		case CALL_STAGE_CREATED:
+			assistImpl.callCreated();
+			break;
+		case CALL_STAGE_ANSWERED:
+			assistImpl.callAnswered();
+			break;
+		case CALL_STAGE_HANGUP:
+			assistImpl.callHangup();
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void setUuid(String uid) {
+		assistImpl.setUuid(uid);	
+	}
+
+	@Override
+	public void setHangCause(int cause) {
+		assistImpl.setHangupCause(cause);
+	}
+
+	@Override
+	public String getUuid() {
+		return assistImpl.getUuid();
+	}
+
+	@Override
+	public SwCommonCallDialogNode getCurNode() {
+		return assistImpl.getCurNode();
+	}
+
+	@Override
+	public void setCurNode(SwCommonCallDialogNode node) {
+		logger.info("Dialog goto node: {}", node.getName());
+		assistImpl.setCurNode(node);
+		
 	}
 
 }

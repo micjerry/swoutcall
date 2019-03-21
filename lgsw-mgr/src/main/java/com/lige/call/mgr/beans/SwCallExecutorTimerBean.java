@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 import com.lige.call.api.cmd.SwCallReceipt;
 import com.lige.call.api.exe.SwCallExecutor;
 
-public class SwCallTimerBean implements Processor{
+public class SwCallExecutorTimerBean implements Processor{
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private SwCallExecutor control;
 
-	public SwCallTimerBean(SwCallExecutor control) {
+	public SwCallExecutorTimerBean(SwCallExecutor control) {
 		this.control = control;
 	}
 
@@ -28,7 +28,7 @@ public class SwCallTimerBean implements Processor{
 			}
 		}
 		
-		List<Message> msglist = CommandFormater.format(commands);;
+		List<Message> msglist = SwCallReceiptFormater.format(commands);;
 		exchange.getIn().setBody(msglist);
 		
 	}

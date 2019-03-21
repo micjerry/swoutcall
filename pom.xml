@@ -12,7 +12,6 @@
     <module>lgsw-api</module>
     <module>lgsw-callimpl</module>
     <module>lgsw-mgr</module>
-    <module>lgsw-util</module>
   </modules>
 	
   <properties>

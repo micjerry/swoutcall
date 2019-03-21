@@ -21,7 +21,7 @@ public class SwCallStopBean implements Runnable {
 	
 	@Override
 	public void run() {
-		logger.info("@@@ConferenceStopBean.run is called...");
+		logger.info("call stop");
 		try {
 			List<String> routes = RoutePrefix.getRouteList(this.id);
 			for (String routeId: routes) {

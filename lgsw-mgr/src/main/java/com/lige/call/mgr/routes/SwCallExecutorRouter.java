@@ -7,14 +7,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lige.call.api.exe.SwCallExecutor;
-import com.lige.call.mgr.beans.HttpResponseBean;
+import com.lige.call.mgr.beans.SwCallHttpResponseBean;
 import com.lige.call.mgr.beans.SwCallExecutorEventBean;
-import com.lige.call.mgr.beans.SwCallOperateBean;
-import com.lige.call.mgr.beans.SwCallTimerBean;
-import com.lige.call.mgr.beans.SysControlBean;
+import com.lige.call.mgr.beans.SwCallExecutorOperateBean;
+import com.lige.call.mgr.beans.SwCallExecutorTimerBean;
+import com.lige.call.mgr.beans.SwCallReceiptSysHandleBean;
 import com.lige.call.mgr.config.RabbitmqConfig;
 import com.lige.call.mgr.protocol.SwCallMgrProtocol;
 import com.lige.common.call.api.SwCommonCallConstant;
+import com.lige.common.call.api.config.mq.SwCommonMqConfig;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 
 final class SwCallExecutorRouter extends RouteBuilder {
@@ -24,16 +25,16 @@ final class SwCallExecutorRouter extends RouteBuilder {
 	private String fromSwitch;
 	private String toCdr;
 	private String id;
-	private SwCallOperateBean controlBean;
+	private SwCallExecutorOperateBean swOperateHandler;
 	private SwCallExecutorEventBean switchEventBean;
-	private HttpResponseBean responseHandler;
-	private SwCallTimerBean conferTimerBean;
-	SwCallExecutorRouter(String id, SwCallExecutor control, RabbitmqConfig config, HttpResponseBean responseHandler) {
-
-		StringBuffer fromOperaterBuffer = new StringBuffer("rabbitmq://localhost:");
-		fromOperaterBuffer.append(config.getPort());
-		fromOperaterBuffer.append("/" + config.getCallOperEx() + "?");
-		fromOperaterBuffer.append("vhost=" + config.getCallOperVhost() + "&");
+	private SwCallHttpResponseBean responseHandler;
+	private SwCallExecutorTimerBean conferTimerBean;
+	SwCallExecutorRouter(String id, SwCallExecutor control, RabbitmqConfig config, String swid, SwCallHttpResponseBean responseHandler) {
+		String cmdRouteKey = SwCommonCallConstant.CALL_CMD_ROUTING + swid;
+		StringBuffer fromOperaterBuffer = new StringBuffer(SwCommonMqConfig.MQ_SYS_URL);
+		fromOperaterBuffer.append(SwCommonMqConfig.MQ_SYS_PORT);
+		fromOperaterBuffer.append("/" + SwCommonMqConfig.MQ_EXCHANGE_OPER + "?");
+		fromOperaterBuffer.append("vhost=" + SwCommonMqConfig.MQ_VHOST_OPER + "&");
 		fromOperaterBuffer.append("username=" + config.getUserName() + "&");
 		fromOperaterBuffer.append("password=" + config.getPassword() + "&");
 		fromOperaterBuffer.append("autoAck=true&");
@@ -44,24 +45,24 @@ final class SwCallExecutorRouter extends RouteBuilder {
 		fromOperaterBuffer.append("declare=true");
 		this.fromOperater = fromOperaterBuffer.toString();
 		
-		StringBuffer toSwitchbuffer = new StringBuffer("rabbitmq://localhost:");
-		toSwitchbuffer.append(config.getPort());
-		toSwitchbuffer.append("/" + config.getSwCmdEx() + "?");
-		toSwitchbuffer.append("vhost=" + config.getSwCmdVhost() + "&");
+		StringBuffer toSwitchbuffer = new StringBuffer(SwCommonMqConfig.MQ_SYS_URL);
+		toSwitchbuffer.append(SwCommonMqConfig.MQ_SYS_PORT);
+		toSwitchbuffer.append("/" + SwCommonMqConfig.MQ_EXCHANGE_CMD + "?");
+		toSwitchbuffer.append("vhost=" + SwCommonMqConfig.MQ_VHOST_CMD + "&");
 		toSwitchbuffer.append("username=" + config.getUserName() + "&");
 		toSwitchbuffer.append("password=" + config.getPassword() + "&");
 		toSwitchbuffer.append("exchangeType=direct&");
-		toSwitchbuffer.append("routingKey=" + SwCommonCallConstant.CALL_CMD_ROUTING + "&");
+		toSwitchbuffer.append("routingKey=" + cmdRouteKey + "&");
 		toSwitchbuffer.append("durable=false&");
 		toSwitchbuffer.append("autoDelete=false&");
 		toSwitchbuffer.append("skipQueueDeclare=true&");
 		toSwitchbuffer.append("declare=true");
 		this.toSwitch = toSwitchbuffer.toString();
 		
-		StringBuffer toCdrbuffer = new StringBuffer("rabbitmq://localhost:");
-		toCdrbuffer.append(config.getPort());
-		toCdrbuffer.append("/" + config.getSwCdrEx() + "?");
-		toCdrbuffer.append("vhost=" + config.getSwCdrVhost() + "&");
+		StringBuffer toCdrbuffer = new StringBuffer(SwCommonMqConfig.MQ_SYS_URL);
+		toCdrbuffer.append(SwCommonMqConfig.MQ_SYS_PORT);
+		toCdrbuffer.append("/" + SwCommonMqConfig.MQ_EXCHANGE_CDR + "?");
+		toCdrbuffer.append("vhost=" + SwCommonMqConfig.MQ_VHOST_CDR + "&");
 		toCdrbuffer.append("username=" + config.getUserName() + "&");
 		toCdrbuffer.append("password=" + config.getPassword() + "&");
 		toCdrbuffer.append("exchangeType=direct&");
@@ -72,20 +73,20 @@ final class SwCallExecutorRouter extends RouteBuilder {
 		toCdrbuffer.append("declare=true");
 		this.toCdr = toCdrbuffer.toString();
 		
-		StringBuffer fsntybuffer = new StringBuffer("rabbitmq://localhost:");
-		fsntybuffer.append(config.getPort());
-		fsntybuffer.append("/" + config.getSwEventEx() + "?");
-		fsntybuffer.append("vhost=" + config.getSwEventVhost() + "&");
-		fsntybuffer.append("username=" + config.getUserName() + "&");
-		fsntybuffer.append("password=" + config.getPassword() + "&");
-		fsntybuffer.append("exchangeType=direct&");
-		fsntybuffer.append("routingKey=" + id + "&");
-		fsntybuffer.append("durable=false&");
-		fsntybuffer.append("autoDelete=false&");
-		fsntybuffer.append("declare=true");
-		this.fromSwitch = fsntybuffer.toString();
-		this.conferTimerBean = new SwCallTimerBean(control);
-		this.controlBean = new SwCallOperateBean(control);
+		StringBuffer fromSwitchSb = new StringBuffer(SwCommonMqConfig.MQ_SYS_URL);
+		fromSwitchSb.append(SwCommonMqConfig.MQ_SYS_PORT);
+		fromSwitchSb.append("/" + SwCommonMqConfig.MQ_EXCHANGE_EVENT + "?");
+		fromSwitchSb.append("vhost=" + SwCommonMqConfig.MQ_VHOST_EVENT + "&");
+		fromSwitchSb.append("username=" + config.getUserName() + "&");
+		fromSwitchSb.append("password=" + config.getPassword() + "&");
+		fromSwitchSb.append("exchangeType=direct&");
+		fromSwitchSb.append("routingKey=" + id + "&");
+		fromSwitchSb.append("durable=false&");
+		fromSwitchSb.append("autoDelete=false&");
+		fromSwitchSb.append("declare=true");
+		this.fromSwitch = fromSwitchSb.toString();
+		this.conferTimerBean = new SwCallExecutorTimerBean(control);
+		this.swOperateHandler = new SwCallExecutorOperateBean(control);
 		this.switchEventBean = new SwCallExecutorEventBean(control);
 		this.responseHandler = responseHandler;
 		this.id = id;
@@ -110,7 +111,7 @@ final class SwCallExecutorRouter extends RouteBuilder {
 		
 		//create main route
 		from(fromOperater).routeId(RoutePrefix.ROUTE_MAIN + this.id).unmarshal().json(JsonLibrary.Jackson, SwCallOperatePojo.class)
-		.process(controlBean).split(body())
+		.process(swOperateHandler).split(body())
 		.choice()
 		.when(http).to("direct:"+RoutePrefix.ROUTE_HTTP + this.id)
 		.when(swcmd).to("direct:"+RoutePrefix.ROUTE_MEDIA + this.id)
@@ -146,7 +147,7 @@ final class SwCallExecutorRouter extends RouteBuilder {
 		
 		//create sys command route
 		logger.info("configure {}",id);
-		SysControlBean sysBean = new SysControlBean(this.id);
+		SwCallReceiptSysHandleBean sysBean = new SwCallReceiptSysHandleBean(this.id);
 		from("direct:"+RoutePrefix.ROUTE_SYS + this.id).routeId(RoutePrefix.ROUTE_SYS + this.id)
 		.process(sysBean);	
 		

@@ -3,8 +3,16 @@ package com.lige.call.impl.api;
 import java.util.Map;
 
 import com.lige.common.call.api.oper.SwCommonCallDialog;
+import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 
 public interface SwCallTask {
+	
+	enum CallStage {
+		CALL_STAGE_INITIAL,
+		CALL_STAGE_CREATED,
+		CALL_STAGE_ANSWERED,
+		CALL_STAGE_HANGUP
+	}
 
 	public String getId();
 	
@@ -15,6 +23,8 @@ public interface SwCallTask {
 	public String getCallerNumber();
 	
 	public String getCalleeNumber();
+	
+	public String getSwitchHost();
 	
 	public String getGateway();
 	
@@ -38,4 +48,15 @@ public interface SwCallTask {
 	
 	public SwCallCdr getCdr();
 	
+	public void setStage(CallStage stage);
+	
+	public String getUuid();
+	
+	public void setUuid(String uuid);
+	
+	public void setHangCause(int cause);
+	
+	public SwCommonCallDialogNode getCurNode();
+	
+	public void setCurNode(SwCommonCallDialogNode node);
 }

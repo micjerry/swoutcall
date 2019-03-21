@@ -13,8 +13,8 @@ import com.lige.call.api.cmd.SwCallReceipt;
 import com.lige.call.api.cmd.SwCallReceiptHttp;
 import com.lige.call.mgr.protocol.SwCallMgrProtocol;
 
-public class CommandFormater {
-	private static final Logger logger = LoggerFactory.getLogger(CommandFormater.class);
+public class SwCallReceiptFormater {
+	private static final Logger logger = LoggerFactory.getLogger(SwCallReceiptFormater.class);
 	
 	public static List<Message> format(List<SwCallReceipt> commands) {
 		if (null == commands) {
@@ -26,16 +26,14 @@ public class CommandFormater {
 			msg.setBody(command.getBody());
 			msg.setHeader(SwCallMgrProtocol.SWCALL_CALLBACK_HEADER, command.getCallback());
 			
-			//logger.info("Command formated id: id {}, name {}", command.getId(), command.getName());
-			
 			switch (command.getType()) {
 
-			case COMMAND_TYPE_HTTP:
+			case RECEIPT_TYPE_HTTP:
 				SwCallReceiptHttp httpcommand = (SwCallReceiptHttp)command;
 				if (httpcommand.getHost() == null || httpcommand.getHost().equals("") || 
 						httpcommand.getMethod() == null || httpcommand.getMethod().equals("")) {
 					msg.setHeader(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER, SwCallMgrProtocol.SWCALL_COMMAND_BAD);
-					logger.error("invalid command received name = " + command.getName() + " id = " + command.getId());
+					logger.error("invalid  name = " + command.getName() + " id = " + command.getId());
 					continue;
 				}
 				
@@ -46,17 +44,17 @@ public class CommandFormater {
 				msg.setHeader(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER, SwCallMgrProtocol.SWCALL_COMMAND_HTTP);
 				
 				break;
-			case COMMAND_TYPE_CACHE:
+			case RECEIPT_TYPE_CACHE:
 				msg.setHeader(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER, SwCallMgrProtocol.SWCALL_COMMAND_CACHE);
 				break;
-			case COMMAND_TYPE_SWITCH:
+			case RECEIPT_TYPE_SWITCH:
 				msg.setHeader(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER, SwCallMgrProtocol.SWCALL_COMMAND_SWITCH);
 				msg.setHeader("rabbitmq.EXPIRATION", 10000);
 				break;
-			case COMMAND_TYPE_CDR:
+			case RECEIPT_TYPE_CDR:
 				msg.setHeader(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER, SwCallMgrProtocol.SWCALL_COMMAND_CDR);
 				break;
-			case COMMAND_TYPE_SYS:
+			case RECEIPT_TYPE_SYS:
 				msg.setHeader(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER, SwCallMgrProtocol.SWCALL_COMMAND_SYS);
 				break;
 			default:

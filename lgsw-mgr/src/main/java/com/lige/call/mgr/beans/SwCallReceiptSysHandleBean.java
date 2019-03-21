@@ -9,20 +9,17 @@ import com.lige.call.api.cmd.SwCallReceiptSys;
 import com.lige.call.mgr.utils.SwCallStopExecutorService;
 import com.lige.common.call.api.esl.SwCommonCallEslConstant;
 
-public class SysControlBean implements Processor{
+public class SwCallReceiptSysHandleBean implements Processor{
 
-	private final static Logger logger = LoggerFactory.getLogger(SysControlBean.class);
+	private final static Logger logger = LoggerFactory.getLogger(SwCallReceiptSysHandleBean.class);
 
 	private String callId;
 	
-	public SysControlBean(String callId) {
+	public SwCallReceiptSysHandleBean(String callId) {
 		this.callId = callId;
 	}
 	
 	public void process(Exchange exchange) throws Exception {
-
-		logger.info("process is called....");
-
 		SwCallReceiptSys syscomand = exchange.getIn().getBody(SwCallReceiptSys.class);
 		boolean isNullSyscomand = (null == syscomand);
 		if (!isNullSyscomand) {

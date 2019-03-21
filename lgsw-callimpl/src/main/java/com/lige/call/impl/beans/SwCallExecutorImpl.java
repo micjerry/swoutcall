@@ -11,13 +11,14 @@ import org.slf4j.LoggerFactory;
 
 import com.lige.call.api.cmd.SwCallReceipt;
 import com.lige.call.api.exe.SwCallExecutor;
-import com.lige.call.api.exe.SwCallOperate;
-import com.lige.call.api.exe.SwCallSwitchEvent;
 import com.lige.call.impl.api.SwCallOperateHandler;
 import com.lige.call.impl.api.SwCallSwitchEventHandler;
 import com.lige.call.impl.api.SwCallTask;
 import com.lige.call.impl.api.SwCallTimerTask;
 import com.lige.call.impl.permission.PermissionControler;
+import com.lige.common.call.api.esl.SwCommonCallEslEventParser;
+import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
+import com.lige.common.call.api.oper.SwCommonCallSessionOperPojo;
 
 class SwCallExecutorImpl implements SwCallExecutor {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -33,17 +34,17 @@ class SwCallExecutorImpl implements SwCallExecutor {
 	}
 	
 	@Override
-	public List<SwCallReceipt> handleOperation(SwCallOperate operation) {
+	public List<SwCallReceipt> handleOperation(SwCommonCallSessionOperPojo operation) {
 		if (PermissionControler.isPermited(operation, callTask)) {
 			List<SwCallReceipt> commands = new ArrayList<>();
-			logger.error("opid: id {} user: {} is not permitted , permited is false", operation.getId(), operation.getUser());
+			logger.error("opid: id {} name: {} is not permitted , permited is false", operation.getId(), operation.getName());
 			return commands;
 		}
 		
 		
-		SwCallOperateHandler handler = callTask.getOptHandler(operation.getUser());
+		SwCallOperateHandler handler = callTask.getOptHandler(operation.getName());
 		if (handler == null) {
-			logger.error("opid: id {} user: {} command {} is not permitted , permited is false", operation.getId(), operation.getUser(), operation.getCommand());
+			logger.error("opid: id {} name: {} command {} is not permitted , permited is false", operation.getId(), operation.getName(), operation.getCommand());
 			return null;
 		}
 
@@ -53,11 +54,13 @@ class SwCallExecutorImpl implements SwCallExecutor {
 	
 	
 	@Override
-	public List<SwCallReceipt> handleSwitchEvent(SwCallSwitchEvent event) {
-		SwCallSwitchEventHandler handler = callTask.getMediaEventHandler(event.getEventName());
+	public List<SwCallReceipt> handleSwitchEvent(SwCommonCallEslEventPojo event) {
+		SwCallSwitchEventHandler handler = callTask.getMediaEventHandler(SwCommonCallEslEventParser.getName(event));
 		
 		if (handler == null) {
-			logger.error("eventide: uid {} event: name {} of conference {} can not be handle", event.getId(), event.getEventName(), callTask.getId());
+			logger.error("eventide: uid {} event: name {} of conference {} can not be handle", 
+					SwCommonCallEslEventParser.getSwitchChannelId(event), 
+					SwCommonCallEslEventParser.getName(event), callTask.getId());
 			return null;
 		}
 		
@@ -73,20 +76,18 @@ class SwCallExecutorImpl implements SwCallExecutor {
 
 		List<SwCallReceipt> commands = new ArrayList<>();
 		Map<String, SwCallTimerTask> timertasks = callTask.getTimertasks();
-		logger.info("timertasks size111:{}",timertasks.size());
 		Iterator<String> iterator = timertasks.keySet().iterator();
 		while (iterator.hasNext()) {
 			String key = (String) iterator.next();
 			SwCallTimerTask timerTask = timertasks.get(key);
-			logger.info("key:{} task is executed:{} is valid:{}",key,timerTask.isExecuted(),timerTask.isValid());
 			if (timerTask.isValid() && !timerTask.isExecuted()) {
 				List<SwCallReceipt> result = timerTask.run();
 				if (result != null) {
 					commands.addAll(result);
 				}
-				logger.info("task:{} result:{}",key,result);
+				logger.info("task:{} executed",key);
 			}else {
-				logger.info("remove task:{}",key);
+				logger.info("remove task:{}", key);
 				iterator.remove();
 				timertasks.remove(key);
 				continue;

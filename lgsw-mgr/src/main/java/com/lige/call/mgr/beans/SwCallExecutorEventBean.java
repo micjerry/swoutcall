@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.lige.call.api.cmd.SwCallReceipt;
 import com.lige.call.api.exe.SwCallExecutor;
+import com.lige.common.call.api.esl.SwCommonCallEslEventParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 
 public class SwCallExecutorEventBean implements Processor {
@@ -22,16 +23,15 @@ public class SwCallExecutorEventBean implements Processor {
 	}
 	
 	public void process(Exchange exchange) throws Exception {
-		SwCommonCallEslEventPojo eventpojo = (SwCommonCallEslEventPojo)exchange.getIn().getBody();
+		SwCommonCallEslEventPojo event = (SwCommonCallEslEventPojo)exchange.getIn().getBody();
 		
 		logger.info("@@@received event from switch");
-		SwCallSwitchEventImpl event = new SwCallSwitchEventImpl(eventpojo);
 		List<SwCallReceipt> commands = executor.handleSwitchEvent(event);
 		if (commands == null) {
-			logger.info("There is no command for event: name {}", event.getEventName());
+			logger.info("There is no command for event: name {}", SwCommonCallEslEventParser.getName(event));
 			return;
 		}
-		List<Message> msglist = CommandFormater.format(commands);
+		List<Message> msglist = SwCallReceiptFormater.format(commands);
 		
 		exchange.getIn().setBody(msglist);
 	}

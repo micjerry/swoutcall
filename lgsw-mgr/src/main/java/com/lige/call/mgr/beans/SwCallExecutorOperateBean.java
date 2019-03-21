@@ -10,39 +10,36 @@ import org.slf4j.LoggerFactory;
 
 import com.lige.call.api.cmd.SwCallReceipt;
 import com.lige.call.api.exe.SwCallExecutor;
-import com.lige.call.mgr.routes.SwCallOperatePojo;
+import com.lige.common.call.api.oper.SwCommonCallSessionOperPojo;
 
-public class SwCallOperateBean implements Processor {
+public class SwCallExecutorOperateBean implements Processor {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private SwCallExecutor control;
 	
-	public SwCallOperateBean(SwCallExecutor control) {
+	public SwCallExecutorOperateBean(SwCallExecutor control) {
 		this.control = control;
 	}
 	
 	public void process(Exchange exchange) throws Exception {
 
-		SwCallOperatePojo operpojo = (SwCallOperatePojo)exchange.getIn().getBody();
+		SwCommonCallSessionOperPojo operpojo = (SwCommonCallSessionOperPojo)exchange.getIn().getBody();
 
 		if (null == operpojo) {
 			logger.error("There is no oper");
 			return;
 		} 
 
-		logger.info("@@@receive conference control req {}",operpojo);
+		logger.info("@@@receive call operate req {}",operpojo);
 
-		SwCallOperateImpl operation = new SwCallOperateImpl(operpojo);
-		logger.info("handle operation:{}", operation);
-		
-		List<SwCallReceipt> commands = control.handleOperation(operation);
+		List<SwCallReceipt> commands = control.handleOperation(operpojo);
 		
 		if (commands == null) {
-			logger.info("There is no command for operation:{}", operation);
+			logger.info("There is no command for operation:{}", operpojo);
 			return;
 		}
 		
-		List<Message> msglist = CommandFormater.format(commands);;
+		List<Message> msglist = SwCallReceiptFormater.format(commands);;
 		exchange.getIn().setBody(msglist);
 	}
 }
