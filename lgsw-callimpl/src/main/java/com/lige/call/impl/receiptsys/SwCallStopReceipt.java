@@ -16,14 +16,12 @@ class SwCallStopReceipt extends SwCallReceiptSys {
 	}
 
 	@Override
-	public String getId() {
-		
+	public String getId() {	
 		return this.id;
 	}
 
 	@Override
-	public String getName() {
-		
+	public String getName() {	
 		return name;
 	}
 

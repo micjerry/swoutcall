@@ -12,6 +12,12 @@ public class SwCallSceneLogic {
 	
 	public static SwCommonCallDialogNode getNextNode(SwCommonCallDialogNode curNode, String detected, SwCommonCallDialog dialog) {
 		if (null == curNode || null == dialog) {
+			logger.error("invalid request curNode or dialog is null");
+			return null;
+		}
+		
+		if (null == curNode.getBranchs() || curNode.getBranchs().isEmpty()) {
+			logger.info("curnode: {} has not branches", curNode.getName());
 			return null;
 		}
 

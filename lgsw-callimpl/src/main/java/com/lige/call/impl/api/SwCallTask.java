@@ -6,13 +6,6 @@ import com.lige.common.call.api.oper.SwCommonCallDialog;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 
 public interface SwCallTask {
-	
-	enum CallStage {
-		CALL_STAGE_INITIAL,
-		CALL_STAGE_CREATED,
-		CALL_STAGE_ANSWERED,
-		CALL_STAGE_HANGUP
-	}
 
 	public String getId();
 	
@@ -36,27 +29,14 @@ public interface SwCallTask {
 	
 	public SwCallOperateHandler getOptHandler(String operName);
 	
-	public SwCallSwitchEventHandler getMediaEventHandler(String eventName);
+	public SwCallSwitchEventHandler getSwitchEventHandler(String eventName);
 	
 	public Map<String, SwCallTimerTask> getTimerTasks();
 	
-	public boolean isExpired();
+	public SwitchCallChannel getChannel();
 	
-	public void hangup();
+	public SwCallDetectNode getCurNode();
 	
-	public Map<String, SwCallTimerTask> getTimertasks();
+	public void goToDialogNode(SwCommonCallDialogNode node);
 	
-	public SwCallCdr getCdr();
-	
-	public void setStage(CallStage stage);
-	
-	public String getUuid();
-	
-	public void setUuid(String uuid);
-	
-	public void setHangCause(int cause);
-	
-	public SwCommonCallDialogNode getCurNode();
-	
-	public void setCurNode(SwCommonCallDialogNode node);
 }

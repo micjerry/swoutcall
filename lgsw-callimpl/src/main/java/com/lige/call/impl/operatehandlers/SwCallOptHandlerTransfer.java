@@ -11,7 +11,6 @@ public class SwCallOptHandlerTransfer implements SwCallOperateHandler {
 
 	@Override
 	public List<SwCallReceipt> handleOperation(SwCommonCallSessionOperPojo operation, SwCallTask task) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

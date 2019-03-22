@@ -24,10 +24,10 @@ class SwCallTimeoutCalling implements SwCallTimerTask{
 	
 	@Override
 	public  List<SwCallReceipt> run() {
-		if (task.isExpired()) {
-			logger.info("Call Task {} is expired, hangup it", task);
+		if (task.getChannel().isCallingExpired()) {
+			logger.info("Call Task {} is expired, hangup it", task.getId());
 			List<SwCallReceipt> commands = new ArrayList<>();
-			commands.add(SwCallSwitchReceiptFactory.createHangupCommand(task.getAssistImpl().getUuid(), SwCallConstant.HANGUP_CAUSE_EXPIRED));
+			commands.add(SwCallSwitchReceiptFactory.createHangupCommand(task.getChannel().getUuid(), SwCallConstant.HANGUP_CAUSE_EXPIRED));
 			return commands;
 		}
 		

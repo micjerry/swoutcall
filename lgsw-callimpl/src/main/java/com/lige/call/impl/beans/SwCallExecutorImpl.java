@@ -47,15 +47,17 @@ class SwCallExecutorImpl implements SwCallExecutor {
 			logger.error("opid: id {} name: {} command {} is not permitted , permited is false", operation.getId(), operation.getName(), operation.getCommand());
 			return null;
 		}
-
-        return handler.handleOperation(operation, callTask);
+		
+		synchronized(callTask) {
+			return handler.handleOperation(operation, callTask);
+		}
 
 	}
 	
 	
 	@Override
 	public List<SwCallReceipt> handleSwitchEvent(SwCommonCallEslEventPojo event) {
-		SwCallSwitchEventHandler handler = callTask.getMediaEventHandler(SwCommonCallEslEventParser.getName(event));
+		SwCallSwitchEventHandler handler = callTask.getSwitchEventHandler(SwCommonCallEslEventParser.getName(event));
 		
 		if (handler == null) {
 			logger.error("eventide: uid {} event: name {} of conference {} can not be handle", 
@@ -64,10 +66,9 @@ class SwCallExecutorImpl implements SwCallExecutor {
 			return null;
 		}
 		
-		List<SwCallReceipt> results = handler.handle(event, callTask);
-		logger.info("results:{}",results);
-		
-		return results;
+		synchronized(callTask) {
+			return handler.handle(event, callTask);
+		}	
 	}
 	
 	
@@ -75,15 +76,17 @@ class SwCallExecutorImpl implements SwCallExecutor {
 	public List<SwCallReceipt> handleTimer() {
 
 		List<SwCallReceipt> commands = new ArrayList<>();
-		Map<String, SwCallTimerTask> timertasks = callTask.getTimertasks();
+		Map<String, SwCallTimerTask> timertasks = callTask.getTimerTasks();
 		Iterator<String> iterator = timertasks.keySet().iterator();
 		while (iterator.hasNext()) {
 			String key = (String) iterator.next();
 			SwCallTimerTask timerTask = timertasks.get(key);
 			if (timerTask.isValid() && !timerTask.isExecuted()) {
-				List<SwCallReceipt> result = timerTask.run();
-				if (result != null) {
-					commands.addAll(result);
+				synchronized(callTask) {
+					List<SwCallReceipt> result = timerTask.run();
+					if (result != null) {
+						commands.addAll(result);
+					}
 				}
 				logger.info("task:{} executed",key);
 			}else {

@@ -66,10 +66,10 @@ public class SwCallCdrReceiptFactory {
 		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_GATEWAY, task.getGateway());
 		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_CALLER, task.getCallerNumber());
 		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_CALLEE, task.getCalleeNumber());
-		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_CREATETIME, Long.toString(task.getCdr().getCreateTime()));
-		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_ANSWERTIME, Long.toString(task.getCdr().getAnswerTime()));
-		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_HANGUPTIME, Long.toString(task.getCdr().getHanupTime()));
-		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_HANGUPCAUSE, Integer.toString(task.getCdr().getHangupCause()));
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_CREATETIME, Long.toString(task.getChannel().getCreateTime()));
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_ANSWERTIME, Long.toString(task.getChannel().getAnswerTime()));
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_HANGUPTIME, Long.toString(task.getChannel().getHanupTime()));
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_HANGUPCAUSE, Integer.toString(task.getChannel().getHangupCause()));
 	}
 
 }

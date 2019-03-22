@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.lige.call.api.cmd.SwCallReceipt;
 import com.lige.call.impl.api.SwCallConstant;
 import com.lige.call.impl.api.SwCallTimerTask;
+import com.lige.call.impl.api.SwitchCallChannel.CallStage;
 import com.lige.call.impl.receiptswitch.SwCallSwitchReceiptFactory;
 
 class SwCallTimeoutRinging implements SwCallTimerTask{
@@ -22,7 +23,7 @@ class SwCallTimeoutRinging implements SwCallTimerTask{
 
 	@Override
 	public boolean isValid() {
-		if (task.getAssistImpl().isAnswered())
+		if (task.getChannel().testStage(CallStage.CALL_STAGE_ANSWERED))
 			return false;
 		return true;
 	}
@@ -34,10 +35,10 @@ class SwCallTimeoutRinging implements SwCallTimerTask{
 
 	@Override
 	public List<SwCallReceipt> run() {
-		if (task.getAssistImpl().isRingExpired()) {
+		if (task.getChannel().isRingExpired()) {
 			logger.info("Call Task {} ring expired, hangup it", task);
 			List<SwCallReceipt> commands = new ArrayList<>();
-			commands.add(SwCallSwitchReceiptFactory.createHangupCommand(task.getAssistImpl().getUuid(), SwCallConstant.HANGUP_CAUSE_EXPIRED));
+			commands.add(SwCallSwitchReceiptFactory.createHangupCommand(task.getChannel().getUuid(), SwCallConstant.HANGUP_CAUSE_EXPIRED));
 			return commands;
 		}
 		

@@ -18,11 +18,18 @@ public class SwCallSwitchReceiptFactory {
 		SwCommonCallEslCommandPojo playPojo = new SwCommonCallEslCommandPojo();
 		playPojo.setUuid(uuid);
 		playPojo.setCallCmd(COMMAND_NAME_EXECUTE);
-		playPojo.setAppName(APP_NAME_SWITCH_PLAYANDETECT);
 		
 		StringBuilder argsb = new StringBuilder();
-		argsb.append(node.getPlay());
-		argsb.append("detect:unimrcp {start-input-timers=false,no-input-timeout=5000,recognition-timeout=5000}hello");
+		
+		//No branch play and hang
+		if (null == node.getBranchs() || node.getBranchs().isEmpty()) {
+			playPojo.setAppName(APP_NAME_SWITCH_PLAY);
+			argsb.append(node.getPlay());
+		} else {
+			playPojo.setAppName(APP_NAME_SWITCH_PLAYANDETECT);
+			argsb.append(node.getPlay());
+			argsb.append("detect:unimrcp {start-input-timers=false,no-input-timeout=5000,recognition-timeout=5000}hello");
+		}
 		playPojo.setAppArg(argsb.toString());
 		
 		command.addMessage(playPojo);

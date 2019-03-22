@@ -7,8 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lige.call.api.cmd.SwCallReceipt;
-import com.lige.call.impl.api.SwCallTask.CallStage;
 import com.lige.call.impl.api.SwCallTimerTask;
+import com.lige.call.impl.api.SwitchCallChannel;
+import com.lige.call.impl.api.SwitchCallChannel.CallStage;
 import com.lige.call.impl.receiptswitch.SwCallSwitchReceiptFactory;
 
 class SwCallTimeoutInitial implements SwCallTimerTask{
@@ -22,7 +23,7 @@ class SwCallTimeoutInitial implements SwCallTimerTask{
 
 	@Override
 	public boolean isValid() {
-		if (task.getAssistImpl().isCmdsend())
+		if (task.getChannel().testStage(CallStage.CALL_STAGE_INITIAL))
 			return false;
 		return true;
 	}
@@ -39,7 +40,8 @@ class SwCallTimeoutInitial implements SwCallTimerTask{
 		commands.add(SwCallSwitchReceiptFactory.createCallCommand(task.getId(), 
 				task.getCalleeNumber(), task.getCallerNumber(), task.getSwitchHost(), task.getGateway()));
 		
-		task.setStage(CallStage.CALL_STAGE_INITIAL);
+		SwitchCallChannel channel = task.getChannel();
+		channel.setCallStage(CallStage.CALL_STAGE_INITIAL, null);
 		return commands;
 		
 	}
