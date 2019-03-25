@@ -16,6 +16,7 @@ import com.lige.call.api.exe.SwCallExecutor;
 import com.lige.call.api.exe.SwCallExecutorFactory;
 import com.lige.call.mgr.beans.SwCallHttpResponseBean;
 import com.lige.call.mgr.config.RabbitmqConfig;
+import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 import com.lige.common.call.api.oper.SwCommonCallSessionCreatePojo;
 
 @Component
@@ -35,10 +36,10 @@ public class SwCallCreateCallRouter extends RouteBuilder {
 	private SwCallHttpResponseBean responseHandler;
 	
 	
-	@Value("${conf.cc.host}")
+	@Value("${outcall.host}")
 	private String host;
 	
-	@Value("${conf.cc.port}")
+	@Value("${outcall.port}")
 	private String port;
 
 	@Override
@@ -51,9 +52,12 @@ public class SwCallCreateCallRouter extends RouteBuilder {
 		from(fromUrl.toString()).unmarshal().json(JsonLibrary.Jackson, SwCommonCallSessionCreatePojo.class)
 		.process(new Processor() {
 			public void process(Exchange exchange) throws Exception {
-                logger.debug("@@@process create call req start");
 				Message message = exchange.getIn();
 				SwCommonCallSessionCreatePojo body = message.getBody(SwCommonCallSessionCreatePojo.class);
+				
+				if (!checkReq(body)) {
+					return;
+				}
 
 				SwCallExecutor executor = factory.create(body);
 				
@@ -62,18 +66,67 @@ public class SwCallCreateCallRouter extends RouteBuilder {
 					return;
 				}
 				
-				logger.debug("@@@ create new callexecutor {}", executor.toString());
+				logger.debug("create new callexecutor {}", executor.toString());
 				
-				String id = body.getTaskid();
-				
-				if (id == null || id.equals("")) {
-					logger.error("Failed to create call no calltask id");
-					return;
-				}
-				SwCallExecutorRouter callctrl = new SwCallExecutorRouter(id, executor, config, body.getSwid(), responseHandler);
+				SwCallExecutorRouter callctrl = new SwCallExecutorRouter(body.getTaskid(), executor, config, body.getSwid(), responseHandler);
 				context.addRoutes(callctrl);
 			}
 		});
 
     }
+	
+	private boolean checkReq(SwCommonCallSessionCreatePojo body) {
+		if (null == body.getTaskid() || "".equals(body.getTaskid())) {
+			logger.error("invalid req no id");
+			return false;
+		}
+		
+		if (null == body.getUserid() || "".equals(body.getUserid())) {
+			logger.error("invalid req no user id");
+			return false;
+		}
+		
+		if (null == body.getRobotid() || "".equals(body.getRobotid())) {
+			logger.error("invalid req no robot id");
+			return false;
+		}
+		
+		if (null == body.getCalleenumber() || "".equals(body.getCalleenumber())) {
+			logger.error("invalid req no callee number");
+			return false;
+		}
+		
+		if (null == body.getSwid() || "".equals(body.getSwid())) {
+			logger.error("invalid req no swid");
+			return false;
+		}
+		
+		if (null == body.getGateway() || "".equals(body.getGateway())) {
+			logger.error("invalid req no gateway");
+			return false;
+		}
+		
+		if (null == body.getDialog() || null == body.getDialog().getNodes() || body.getDialog().getNodes().isEmpty()) {
+			logger.error("invalid req dialog");
+			return false;
+		}
+		
+		boolean hasFirst = false;
+		for (SwCommonCallDialogNode node: body.getDialog().getNodes()) {
+			if (null == node.getPlay() || "".equals(node.getPlay())) {
+				logger.error("invalid node: {}", node.getName());
+				return false;
+			}
+			
+			if (node.isFirst())
+				hasFirst = true;
+		}
+		
+		if (!hasFirst) {
+			logger.warn("no first node was set dialog {}", body.getDialog().getName());
+		}
+		
+		
+		return true;
+	}
 }

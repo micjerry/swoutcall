@@ -5,9 +5,13 @@ import java.util.List;
 import com.lige.call.api.cmd.SwCallReceipt;
 
 public interface SwCallTimerTask {	
-	public  boolean isValid();
+	public String getName();
 	
-	public  boolean isExecuted();
+	public boolean isValid();
 	
-	public  List<SwCallReceipt> run();
+	public boolean isReady();
+	
+	public boolean isExecuted();
+	
+	public List<SwCallReceipt> run();
 }

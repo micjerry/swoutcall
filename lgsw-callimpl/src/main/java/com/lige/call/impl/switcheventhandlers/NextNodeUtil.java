@@ -7,9 +7,10 @@ import org.slf4j.LoggerFactory;
 
 import com.lige.call.api.cmd.SwCallReceipt;
 import com.lige.call.impl.api.SwCallDetectNode;
+import com.lige.call.impl.api.SwCallState;
 import com.lige.call.impl.api.SwCallTask;
 import com.lige.call.impl.api.SwitchCallChannel;
-import com.lige.call.impl.api.SwitchCallChannel.CallStage;
+import com.lige.call.impl.receiptcdr.SwCallCdrReceiptFactory;
 import com.lige.call.impl.receiptswitch.SwCallSwitchReceiptFactory;
 import com.lige.call.impl.tools.ReceiptLoader;
 import com.lige.call.impl.tools.SwCallSceneLogic;
@@ -32,8 +33,10 @@ class NextNodeUtil {
 			return  ReceiptLoader.loadReceipt(SwCallSwitchReceiptFactory.createHangupCommand(task.getChannel().getUuid(), null));
 		}
 		
+		List<SwCallReceipt> results = ReceiptLoader.loadReceipt(SwCallCdrReceiptFactory.makeCallDialogCdr(task));
 		task.goToDialogNode(nextNode);
-		return ReceiptLoader.loadReceipt(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task.getChannel().getUuid(), nextNode));
+		results.add(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task.getChannel().getUuid(), nextNode));
+		return results;
 	}
 	
 	public static String getNodeName(SwCallTask task) {
@@ -49,8 +52,8 @@ class NextNodeUtil {
 		return nodeDefine.getName();
 	}
 	
-	public static void refreshChannel(CallStage stage, SwCallTask task, SwCommonCallEslEventPojo event) {
+	public static void refreshChannel(SwCallState state, SwCallTask task, SwCommonCallEslEventPojo event) {
 		SwitchCallChannel channel = task.getChannel();
-		channel.setCallStage(stage, event);
+		channel.setCallState(state, event);
 	}
 }

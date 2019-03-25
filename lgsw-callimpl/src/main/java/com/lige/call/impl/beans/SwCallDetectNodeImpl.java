@@ -12,10 +12,13 @@ class SwCallDetectNodeImpl implements SwCallDetectNode{
 	
 	private String detected;
 	
-	public SwCallDetectNodeImpl(SwCommonCallDialogNode node) {
+	private int seq;
+	
+	public SwCallDetectNodeImpl(SwCommonCallDialogNode node, int seq) {
 		this.node = node;
 		playStarted = false;
 		playStoped = false;
+		this.seq = seq;
 	}
 
 	@Override
@@ -52,5 +55,10 @@ class SwCallDetectNodeImpl implements SwCallDetectNode{
 	@Override
 	public void setDetected(String detected) {
 		this.detected = detected;	
+	}
+
+	@Override
+	public int getSeq() {
+		return seq;
 	}
 }

@@ -27,7 +27,6 @@ public class OptHandlerFactory {
 	}
 	
 	public HashMap<String, SwCallOperateHandler> createCallHandlers() {
-		
 		return callOpthandlers;
 	}
 

@@ -15,7 +15,6 @@ import com.lige.call.impl.api.SwCallOperateHandler;
 import com.lige.call.impl.api.SwCallSwitchEventHandler;
 import com.lige.call.impl.api.SwCallTask;
 import com.lige.call.impl.api.SwCallTimerTask;
-import com.lige.call.impl.permission.PermissionControler;
 import com.lige.common.call.api.esl.SwCommonCallEslEventParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 import com.lige.common.call.api.oper.SwCommonCallSessionOperPojo;
@@ -35,22 +34,19 @@ class SwCallExecutorImpl implements SwCallExecutor {
 	
 	@Override
 	public List<SwCallReceipt> handleOperation(SwCommonCallSessionOperPojo operation) {
-		if (PermissionControler.isPermited(operation, callTask)) {
-			List<SwCallReceipt> commands = new ArrayList<>();
-			logger.error("opid: id {} name: {} is not permitted , permited is false", operation.getId(), operation.getName());
-			return commands;
-		}
-		
-		
 		SwCallOperateHandler handler = callTask.getOptHandler(operation.getName());
 		if (handler == null) {
 			logger.error("opid: id {} name: {} command {} is not permitted , permited is false", operation.getId(), operation.getName(), operation.getCommand());
 			return null;
 		}
 		
+		List<SwCallReceipt> commands = null;
 		synchronized(callTask) {
-			return handler.handleOperation(operation, callTask);
+			commands = handler.handleOperation(operation, callTask);
 		}
+		
+		callTask.loadNewTimer();
+		return commands;
 
 	}
 	
@@ -66,9 +62,15 @@ class SwCallExecutorImpl implements SwCallExecutor {
 			return null;
 		}
 		
+		List<SwCallReceipt> commands = null;
+		
 		synchronized(callTask) {
-			return handler.handle(event, callTask);
+			commands = handler.handle(event, callTask);
 		}	
+		
+		callTask.loadNewTimer();
+		
+		return commands;
 	}
 	
 	
@@ -82,13 +84,15 @@ class SwCallExecutorImpl implements SwCallExecutor {
 			String key = (String) iterator.next();
 			SwCallTimerTask timerTask = timertasks.get(key);
 			if (timerTask.isValid() && !timerTask.isExecuted()) {
-				synchronized(callTask) {
-					List<SwCallReceipt> result = timerTask.run();
-					if (result != null) {
-						commands.addAll(result);
+				if (timerTask.isReady()) {
+					synchronized(callTask) {
+						List<SwCallReceipt> result = timerTask.run();
+						if (result != null) {
+							commands.addAll(result);
+						}
 					}
+					logger.info("task:{} executed",key);
 				}
-				logger.info("task:{} executed",key);
 			}else {
 				logger.info("remove task:{}", key);
 				iterator.remove();
@@ -96,6 +100,9 @@ class SwCallExecutorImpl implements SwCallExecutor {
 				continue;
 			}
 		}
+		
+		callTask.loadNewTimer();
+		
 		return commands;
 		
 	}

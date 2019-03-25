@@ -16,4 +16,6 @@ public interface SwCallDetectNode {
 	public String getDetected();
 	
 	public void setDetected(String detected);
+	
+	public int getSeq();
 }

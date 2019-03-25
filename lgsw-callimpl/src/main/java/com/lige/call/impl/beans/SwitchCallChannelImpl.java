@@ -2,21 +2,20 @@ package com.lige.call.impl.beans;
 
 import java.util.Calendar;
 
-import com.lige.call.impl.api.SwitchCallChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.lige.call.impl.api.SwCallDetectNode;
+import com.lige.call.impl.api.SwCallState;
+import com.lige.call.impl.api.SwitchCallChannel;
 import com.lige.common.call.api.esl.SwCommonCallEslEventParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 
 class SwitchCallChannelImpl implements SwitchCallChannel {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private SwCallTaskImpl task;
-	
-	private boolean initialed;
-	
-	private boolean created;
-	
-	private boolean answered;
 	
 	// the call initial time
 	private long call_initial_timestamp;
@@ -36,30 +35,23 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	
 	private SwCallDetectNode curNode;
 	
+	private SwCallState preCallState;
+	
+	private SwCallState callState;
+	
+	private int nodeSeq;
+	
 	SwitchCallChannelImpl(SwCallTaskImpl task) {
 		this.task = task;
-		this.initialed = false;
-		this.answered = false;
-		this.created = false;
 		this.call_initial_timestamp = 0;
 		this.call_created_timestamp = 0;
 		this.call_answered_timestamp = 0;
 		this.call_hangup_timestamp = 0;
+		this.callState = SwCallState.NONE;
+		this.preCallState = SwCallState.NONE;
+		this.nodeSeq = 0;
 	}
 	
-	@Override
-	public boolean isCallingExpired() {
-		if (!created || !answered)
-			return false;
-		return (Calendar.getInstance().get(Calendar.SECOND) - call_answered_timestamp) > task.getMaxDuration();
-	}	
-	
-	@Override
-	public boolean isRingExpired() {
-		if (answered)
-			return false;
-		return (Calendar.getInstance().get(Calendar.SECOND) - call_created_timestamp) > task.getRingDuration();
-	}
 
 	@Override
 	public String getUuid() {
@@ -95,26 +87,26 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	}
 
 	public void goToDialogNode(SwCommonCallDialogNode curNode) {
-		this.curNode = new SwCallDetectNodeImpl(curNode);
+		this.curNode = new SwCallDetectNodeImpl(curNode, this.nodeSeq++);
 	}
 
 	@Override
-	public void setCallStage(CallStage stage, SwCommonCallEslEventPojo event) {
-		switch (stage) {
-		case CALL_STAGE_INITIAL:
-			this.initialed = true;
+	public void setCallState(SwCallState state, SwCommonCallEslEventPojo event) {
+		logger.info("call {} state change from {} to {}", task.getId(), this.callState, state);
+		this.preCallState = this.callState;
+		this.callState = state;
+		switch (state) {
+		case CREATING:
 			this.call_initial_timestamp = Calendar.getInstance().get(Calendar.SECOND);
 			break;
-		case CALL_STAGE_CREATED:
-			this.created = true;
+		case RINGING:
 			this.uuid = SwCommonCallEslEventParser.getSwitchChannelId(event);
 			call_created_timestamp = Calendar.getInstance().get(Calendar.SECOND);
 			break;
-		case CALL_STAGE_ANSWERED:
-			this.answered = true;
+		case CALLING:
 			call_answered_timestamp = Calendar.getInstance().get(Calendar.SECOND);
 			break;
-		case CALL_STAGE_HANGUP:
+		case HANGING:
 			call_hangup_timestamp =  Calendar.getInstance().get(Calendar.SECOND);
 			break;
 		default:
@@ -122,25 +114,13 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 		}
 		
 	}
-
+	
 	@Override
-	public boolean testStage(CallStage stage) {
-		boolean result = false;
-		switch (stage) {
-		case CALL_STAGE_INITIAL:
-			result = this.initialed;
-			break;
-		case CALL_STAGE_CREATED:
-			result = this.created;
-			break;
-		case CALL_STAGE_ANSWERED:
-			result = this.answered;
-			break;
-		default:
-			break;	
-		}
-		
-		return result;
+	public SwCallState getCallState() {
+		return this.callState;
 	}
 
+	public SwCallState getPreCallState() {
+		return preCallState;
+	}
 }

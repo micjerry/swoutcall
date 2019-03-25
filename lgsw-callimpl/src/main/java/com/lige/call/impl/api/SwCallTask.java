@@ -39,4 +39,6 @@ public interface SwCallTask {
 	
 	public void goToDialogNode(SwCommonCallDialogNode node);
 	
+	public void loadNewTimer();
+	
 }
