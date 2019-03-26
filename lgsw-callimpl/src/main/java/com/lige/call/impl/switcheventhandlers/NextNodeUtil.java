@@ -22,14 +22,14 @@ class NextNodeUtil {
 	
 	public static List<SwCallReceipt> nextStep(SwCallTask task) {
 		if (null == task.getCurNode().getDetected() || !task.getCurNode().isPlayFinished()) {
-			logger.info("wait detect result or play finished");
+			logger.info("call: {} wait detect result or play finished", task.getId());
 			return null;
 		}
 		
 		SwCommonCallDialogNode nextNode = SwCallSceneLogic.getNextNode(task.getCurNode().getNodeDefine(), task.getCurNode().getDetected(), task.getDialog());
 		
 		if (null == nextNode) {
-			logger.error("Can not find next node hangup it");
+			logger.error("call: {} can not find next node hangup it, cur node: {}", task.getId(), task.getCurNode().getNodeDefine().getName());
 			return  ReceiptLoader.loadReceipt(SwCallSwitchReceiptFactory.createHangupCommand(task.getChannel().getUuid(), null));
 		}
 		

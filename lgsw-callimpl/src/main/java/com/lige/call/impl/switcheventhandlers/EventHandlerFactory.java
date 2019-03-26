@@ -28,6 +28,12 @@ public class EventHandlerFactory {
 	@Autowired
 	private SwEventHandlerPlayStart playStartHandler;
 	
+	@Autowired
+	private SwEventHandlerRecordStart recordStarthandler;
+	
+	@Autowired
+	private SwEventHandlerRecordStop recordStopHandler;
+	
 	private HashMap<String, SwCallSwitchEventHandler> callHandlers;
 	
 	public void initialHandlers() {
@@ -38,6 +44,8 @@ public class EventHandlerFactory {
 		callHandlers.put(SwCommonCallEslConstant.ESLEVENT_DETECTED_SPEECH, detectSpeechHandler);
 		callHandlers.put(SwCommonCallEslConstant.ESLEVENT_PLAYBACK_STOP, playStopHandler);
 		callHandlers.put(SwCommonCallEslConstant.ESLEVENT_PLAYBACK_START, playStartHandler);
+		callHandlers.put(SwCommonCallEslConstant.ESLEVENT_RECORD_START, recordStarthandler);
+		callHandlers.put(SwCommonCallEslConstant.ESLEVENT_RECORD_STOP, recordStopHandler);
 	}
 	
 	

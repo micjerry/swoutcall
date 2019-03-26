@@ -17,4 +17,12 @@ public interface SwitchCallChannel {
 	public void setCallState(SwCallState stage, SwCommonCallEslEventPojo pojo);
 	
 	public SwCallState getCallState();
+	
+	public void setRecordFile(String recordFileName);
+	
+	public String getRecordFile();
+	
+	public void setRecordMsLength(String msLength);
+	
+	public String getRecordMsLength();
 }

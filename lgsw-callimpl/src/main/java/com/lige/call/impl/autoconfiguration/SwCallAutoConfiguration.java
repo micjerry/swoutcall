@@ -19,6 +19,8 @@ import com.lige.call.impl.switcheventhandlers.SwEventHandlerChannelDestroy;
 import com.lige.call.impl.switcheventhandlers.SwEventHandlerDetectSpeech;
 import com.lige.call.impl.switcheventhandlers.SwEventHandlerPlayStart;
 import com.lige.call.impl.switcheventhandlers.SwEventHandlerPlayStop;
+import com.lige.call.impl.switcheventhandlers.SwEventHandlerRecordStart;
+import com.lige.call.impl.switcheventhandlers.SwEventHandlerRecordStop;
 
 @Configuration
 public class SwCallAutoConfiguration {
@@ -79,6 +81,18 @@ public class SwCallAutoConfiguration {
 	@ConditionalOnMissingBean
 	public SwEventHandlerPlayStop getEventHandlerPlayStop() {
 		return new SwEventHandlerPlayStop();
+	}
+	
+	@Bean
+	@ConditionalOnMissingBean
+	public SwEventHandlerRecordStart getEventHandlerRecordStart() {
+		return new SwEventHandlerRecordStart();
+	}
+	
+	@Bean
+	@ConditionalOnMissingBean
+	public SwEventHandlerRecordStop getEventHandlerRecordStop() {
+		return new SwEventHandlerRecordStop();
 	}
 	
 	@Bean

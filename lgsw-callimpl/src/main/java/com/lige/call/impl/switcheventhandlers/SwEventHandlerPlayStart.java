@@ -14,7 +14,7 @@ import com.lige.common.call.api.esl.SwCommonCallEslEventParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 
-public class SwEventHandlerPlayStart implements SwCallSwitchEventHandler{
+public class SwEventHandlerPlayStart implements SwCallSwitchEventHandler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override

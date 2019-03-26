@@ -1,6 +1,7 @@
 package com.lige.call.impl.receiptswitch;
 
 import com.lige.call.api.cmd.SwCallReceiptSwitch;
+import com.lige.common.call.api.config.sw.SwCommonSwitchConfig;
 import com.lige.common.call.api.esl.SwCommonCallEslCommandPojo;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 
@@ -75,7 +76,12 @@ public class SwCallSwitchReceiptFactory {
 			callArgSb.append(calleeNumber);
 		}
 		
-		callArgSb.append(" 5001 XML default CALLER_ID_NAME CALLER_ID_NUMBER");
+		//callArgSb.append(" 5001 XML default CALLER_ID_NAME CALLER_ID_NUMBER");
+		callArgSb.append(" ");
+		callArgSb.append(SwCommonSwitchConfig.SWITCH_SYS_ASRNUMBER + " ");
+		callArgSb.append(SwCommonSwitchConfig.SWITCH_SYS_DIAPLANTYPE + " ");
+		callArgSb.append(SwCommonSwitchConfig.SWITCH_SYS_ASRDIAPLAN + " robota CALLER_ID_NUMBER");
+		
 		callCmdPojo.setArg(callArgSb.toString());
 		
 		command.addMessage(callCmdPojo);	

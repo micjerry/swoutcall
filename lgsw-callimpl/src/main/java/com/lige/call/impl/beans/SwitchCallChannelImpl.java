@@ -41,6 +41,10 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	
 	private int nodeSeq;
 	
+	private String recordFileName;
+	
+	private String recordMsLength;
+	
 	SwitchCallChannelImpl(SwCallTaskImpl task) {
 		this.task = task;
 		this.call_initial_timestamp = 0;
@@ -122,5 +126,29 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 
 	public SwCallState getPreCallState() {
 		return preCallState;
+	}
+
+
+	@Override
+	public void setRecordFile(String recordFileName) {
+		this.recordFileName = recordFileName;
+		
+	}
+
+	@Override
+	public String getRecordFile() {
+		return recordFileName;
+	}
+
+
+	@Override
+	public void setRecordMsLength(String msLength) {
+		this.recordMsLength = msLength;
+		
+	}
+
+	@Override
+	public String getRecordMsLength() {
+		return recordMsLength;
 	}
 }
