@@ -9,6 +9,8 @@ public interface SwCallReceipt {
 		RECEIPT_TYPE_SYS
 	}		
 	
+	public static final String RECEIPT_SYS_CALLEND = "end";
+	
 	public String getId();
 	
 	public String getName();

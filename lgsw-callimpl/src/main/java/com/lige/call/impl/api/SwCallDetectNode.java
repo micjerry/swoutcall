@@ -17,5 +17,7 @@ public interface SwCallDetectNode {
 	
 	public void setDetected(String detected);
 	
-	public int getSeq();
+	public int getRetry();
+	
+	public void increaseRetry();
 }

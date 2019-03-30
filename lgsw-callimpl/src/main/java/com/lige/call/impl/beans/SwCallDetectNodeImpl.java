@@ -12,13 +12,13 @@ class SwCallDetectNodeImpl implements SwCallDetectNode{
 	
 	private String detected;
 	
-	private int seq;
+	private int retry;
 	
-	public SwCallDetectNodeImpl(SwCommonCallDialogNode node, int seq) {
+	public SwCallDetectNodeImpl(SwCommonCallDialogNode node) {
 		this.node = node;
-		playStarted = false;
-		playStoped = false;
-		this.seq = seq;
+		this.playStarted = false;
+		this.playStoped = false;
+		this.retry = 0;
 	}
 
 	@Override
@@ -58,7 +58,13 @@ class SwCallDetectNodeImpl implements SwCallDetectNode{
 	}
 
 	@Override
-	public int getSeq() {
-		return seq;
+	public int getRetry() {
+		return retry;
+	}
+
+	@Override
+	public void increaseRetry() {
+		this.retry++;
+		
 	}
 }

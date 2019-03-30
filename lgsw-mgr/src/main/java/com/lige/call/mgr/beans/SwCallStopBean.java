@@ -23,7 +23,7 @@ public class SwCallStopBean implements Runnable {
 	public void run() {
 		logger.info("call stop");
 		try {
-			List<String> routes = RoutePrefix.getRouteList(this.id);
+			List<String> routes = RoutePrefix.getRouteNames(this.id);
 			for (String routeId: routes) {
 				camelContext.stopRoute(routeId);
 				camelContext.removeRoute(routeId);

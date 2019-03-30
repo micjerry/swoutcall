@@ -5,9 +5,9 @@ import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.lige.call.api.cmd.SwCallReceipt;
 import com.lige.call.api.cmd.SwCallReceiptSys;
 import com.lige.call.mgr.utils.SwCallStopExecutorService;
-import com.lige.common.call.api.esl.SwCommonCallEslConstant;
 
 public class SwCallReceiptSysHandleBean implements Processor{
 
@@ -32,7 +32,7 @@ public class SwCallReceiptSysHandleBean implements Processor{
 			return;
 		}
 
-		if (syscomand.getName().equalsIgnoreCase(SwCommonCallEslConstant.ESLEVENT_CHANNEL_DESTROY)) {
+		if (syscomand.getName().equalsIgnoreCase(SwCallReceipt.RECEIPT_SYS_CALLEND)) {
 			SwCallStopBean stopBean = new SwCallStopBean(exchange.getContext(), callId);
 			SwCallStopExecutorService.getExecutor().submit(stopBean);
 		}

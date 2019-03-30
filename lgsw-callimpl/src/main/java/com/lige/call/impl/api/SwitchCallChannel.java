@@ -1,6 +1,7 @@
 package com.lige.call.impl.api;
 
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
+import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 
 public interface SwitchCallChannel {
 	
@@ -25,4 +26,8 @@ public interface SwitchCallChannel {
 	public void setRecordMsLength(String msLength);
 	
 	public String getRecordMsLength();
+	
+	public SwCommonCallDialogNode getCurPlayedNode();
+	
+	public void setCurPlayedNode(SwCommonCallDialogNode node);
 }

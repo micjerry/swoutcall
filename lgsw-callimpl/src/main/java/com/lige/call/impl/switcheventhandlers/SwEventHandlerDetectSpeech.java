@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.lige.call.api.cmd.SwCallReceipt;
 import com.lige.call.impl.api.SwCallSwitchEventHandler;
 import com.lige.call.impl.api.SwCallTask;
-import com.lige.call.impl.tools.DecodeSpeechDetectResult;
+import com.lige.call.impl.tools.BaiduSpeechResult;
 import com.lige.call.impl.tools.SpeechParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 
@@ -17,13 +17,13 @@ public class SwEventHandlerDetectSpeech implements SwCallSwitchEventHandler {
 
 	@Override
 	public List<SwCallReceipt> handle(SwCommonCallEslEventPojo event, SwCallTask task) {
-		DecodeSpeechDetectResult result = SpeechParser.parseSpeech(event.getEventBody());
+		BaiduSpeechResult result = SpeechParser.parseSpeech(event.getEventBody());
 		String detected =  "*";
 		
 		if (null == result) {
 			logger.error("Can not parse detect result");
 		} else {
-			detected = result.getInterpretation().getInstance();
+			detected = result.getInterpretation().getInput();
 		}
 		
 		logger.info("task: {} node: {} speech detected: {}", task.getId(), NextNodeUtil.getNodeName(task), detected);

@@ -14,6 +14,8 @@ import com.lige.call.mgr.beans.SwCallExecutorTimerBean;
 import com.lige.call.mgr.beans.SwCallReceiptSysHandleBean;
 import com.lige.call.mgr.config.RabbitmqConfig;
 import com.lige.call.mgr.protocol.SwCallMgrProtocol;
+import com.lige.call.mgr.routes.RoutePrefix.RouteMain;
+import com.lige.call.mgr.routes.RoutePrefix.RouteSecond;
 import com.lige.common.call.api.SwCommonCallConstant;
 import com.lige.common.call.api.config.mq.SwCommonMqConfig;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
@@ -104,59 +106,60 @@ final class SwCallExecutorRouter extends RouteBuilder {
 			throw new RuntimeException("Invalid switch event url.");
 		}
 		
+		
 		Predicate http = header(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER).isEqualTo(SwCallMgrProtocol.SWCALL_COMMAND_HTTP);
 		Predicate swcmd = header(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER).isEqualTo(SwCallMgrProtocol.SWCALL_COMMAND_SWITCH);
 		Predicate cdr = header(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER).isEqualTo(SwCallMgrProtocol.SWCALL_COMMAND_CDR);
 		Predicate sys = header(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER).isEqualTo(SwCallMgrProtocol.SWCALL_COMMAND_SYS);
 		
 		//create main route
-		from(fromOperater).routeId(RoutePrefix.ROUTE_MAIN + this.id).unmarshal().json(JsonLibrary.Jackson, SwCallOperatePojo.class)
+		from(fromOperater).routeId(RoutePrefix.createMainRoute(RouteMain.ROUTE_MAIN_OPER, this.id)).unmarshal().json(JsonLibrary.Jackson, SwCallOperatePojo.class)
 		.process(swOperateHandler).split(body())
 		.choice()
-		.when(http).to("direct:"+RoutePrefix.ROUTE_HTTP + this.id)
-		.when(swcmd).to("direct:"+RoutePrefix.ROUTE_MEDIA + this.id)
-		.when(cdr).to("direct:"+RoutePrefix.ROUTE_CDR + this.id)
-		.when(sys).to("direct:"+RoutePrefix.ROUTE_SYS + this.id)
+		.when(http).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_HTTP, this.id))
+		.when(swcmd).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SWCMD, this.id))
+		.when(cdr).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_CDR, this.id))
+		.when(sys).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id))
 		.end();
 		
 		//create switch event route
-		from(fromSwitch).routeId(RoutePrefix.ROUTE_MEDIANTY + this.id).unmarshal().json(JsonLibrary.Jackson, SwCommonCallEslEventPojo.class)
+		from(fromSwitch).routeId(RoutePrefix.createMainRoute(RouteMain.ROUTE_MAIN_SWITCHEVENT, this.id)).unmarshal().json(JsonLibrary.Jackson, SwCommonCallEslEventPojo.class)
 		.process(switchEventBean).split(body())
 		.choice()
-		.when(http).to("direct:"+RoutePrefix.ROUTE_HTTP + this.id)
-		.when(swcmd).to("direct:"+RoutePrefix.ROUTE_MEDIA + this.id)
-		.when(cdr).to("direct:"+RoutePrefix.ROUTE_CDR + this.id)
-		.when(sys).to("direct:"+RoutePrefix.ROUTE_SYS + this.id)
+		.when(http).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_HTTP, this.id))
+		.when(swcmd).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SWCMD, this.id))
+		.when(cdr).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_CDR, this.id))
+		.when(sys).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id))
+		.end();
+		
+		from("timer://foo?fixedRate=true&period=1000").routeId(RoutePrefix.createMainRoute(RouteMain.ROUTE_MAIN_TIMER, this.id)).process(conferTimerBean).split(body())
+		.choice()
+		.when(http).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_HTTP, this.id))
+		.when(swcmd).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SWCMD, this.id))
+		.when(cdr).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_CDR, this.id))
+		.when(sys).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id))
 		.end();
 		
 		//create http route
-		from("direct:"+RoutePrefix.ROUTE_HTTP + this.id).routeId(RoutePrefix.ROUTE_HTTP + this.id)
+		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_HTTP, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_HTTP, this.id))
 		.marshal().json(JsonLibrary.Jackson)
 		.to("http4://127.0.0.1:8081/")
 		.process(responseHandler);
 		
 		//create switch command route
-		from("direct:"+RoutePrefix.ROUTE_MEDIA + this.id).routeId(RoutePrefix.ROUTE_MEDIA + this.id)
+		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SWCMD, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SWCMD, this.id))
 		.marshal().json(JsonLibrary.Jackson)
 		.to(this.toSwitch);
 		
 		//create cdr route
-		from("direct:"+RoutePrefix.ROUTE_CDR + this.id).routeId(RoutePrefix.ROUTE_CDR + this.id)
+		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_CDR, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_CDR, this.id))
 		.marshal().json(JsonLibrary.Jackson)
 		.to(this.toCdr);
 		
 		//create sys command route
 		logger.info("configure {}",id);
 		SwCallReceiptSysHandleBean sysBean = new SwCallReceiptSysHandleBean(this.id);
-		from("direct:"+RoutePrefix.ROUTE_SYS + this.id).routeId(RoutePrefix.ROUTE_SYS + this.id)
+		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id))
 		.process(sysBean);	
-		
-		from("timer://foo?fixedRate=true&period=2000").routeId(RoutePrefix.ROUTE_TIMER + this.id).process(conferTimerBean).split(body())
-		.choice()
-		.when(http).to("direct:"+RoutePrefix.ROUTE_HTTP + this.id)
-		.when(swcmd).to("direct:"+RoutePrefix.ROUTE_MEDIA + this.id)
-		.when(cdr).to("direct:"+RoutePrefix.ROUTE_CDR + this.id)
-		.when(sys).to("direct:"+RoutePrefix.ROUTE_SYS + this.id)
-		.end();
     }
 }

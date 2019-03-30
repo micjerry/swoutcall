@@ -1,6 +1,7 @@
 package com.lige.call.impl.receiptswitch;
 
 import com.lige.call.api.cmd.SwCallReceiptSwitch;
+import com.lige.call.impl.api.SwCallTask;
 import com.lige.common.call.api.config.sw.SwCommonSwitchConfig;
 import com.lige.common.call.api.esl.SwCommonCallEslCommandPojo;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
@@ -14,8 +15,15 @@ public class SwCallSwitchReceiptFactory {
 	public static final String APP_NAME_SWITCH_PLAY = "playback";
 	public static final String RECEIPT_NAME_SWITCH_DETECT = "detect";
 
-	public static SwCallReceiptSwitch createPlayAndDetectCommand(String uuid, SwCommonCallDialogNode node) {
+	public static SwCallReceiptSwitch createPlayAndDetectCommand(SwCallTask task) {	
+		String uuid = task.getChannel().getUuid();
+		SwCommonCallDialogNode node = task.getChannel().getCurPlayedNode();
+		
+		if (null == node || null == uuid) 
+			return null;
+		
 		SwCallReceiptSwitchImpl command = new SwCallReceiptSwitchImpl(uuid, APP_NAME_SWITCH_PLAYANDETECT);
+		
 		SwCommonCallEslCommandPojo playPojo = new SwCommonCallEslCommandPojo();
 		playPojo.setUuid(uuid);
 		playPojo.setCallCmd(COMMAND_NAME_EXECUTE);
@@ -23,13 +31,17 @@ public class SwCallSwitchReceiptFactory {
 		StringBuilder argsb = new StringBuilder();
 		
 		//No branch play and hang
-		if (null == node.getBranchs() || node.getBranchs().isEmpty()) {
+		if ((null == node.getBranchs() || node.getBranchs().isEmpty()) && (node.getSysType() == null || "".equals(node.getSysType()))) {
 			playPojo.setAppName(APP_NAME_SWITCH_PLAY);
 			argsb.append(node.getPlay());
 		} else {
+			//wait 5 seconds for the user to say something after play
+			int duration = node.getDuration() * 1000 + 5000;
 			playPojo.setAppName(APP_NAME_SWITCH_PLAYANDETECT);
 			argsb.append(node.getPlay());
-			argsb.append("detect:unimrcp {start-input-timers=false,no-input-timeout=5000,recognition-timeout=5000}hello");
+			argsb.append("detect:unimrcp {start-input-timers=false,no-input-timeout=");
+			argsb.append(Integer.toString(duration));
+			argsb.append(",recognition-timeout=5000}hello");
 		}
 		playPojo.setAppArg(argsb.toString());
 		

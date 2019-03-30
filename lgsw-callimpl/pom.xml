@@ -41,6 +41,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<artifactId>jackson-dataformat-xml</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.belerweb</groupId>
+			<artifactId>pinyin4j</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.lige</groupId>
 			<artifactId>lgsw-api</artifactId>
 			<version>1.1.0</version>

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.lige.common.call.api.oper.SwCommonCallDialog;
 import com.lige.common.call.api.oper.SwCommonCallDialogBranch;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
+import com.lige.common.call.api.oper.SwCommonCallOperConstant;
 
 public class SwCallSceneLogic {
 	private static final Logger logger = LoggerFactory.getLogger(SwCallSceneLogic.class);
@@ -22,6 +23,7 @@ public class SwCallSceneLogic {
 		}
 
 		SwCommonCallDialogBranch matchedBranch = null;
+		String detectedPinyin = PinyinTool.getPinyin(detected);
 		
 		for (SwCommonCallDialogBranch branch: curNode.getBranchs() ) {
 			if ("*".equals(branch.getMatch())) {
@@ -31,7 +33,8 @@ public class SwCallSceneLogic {
 			
 			String[] matchs = branch.getMatch().split("-");
 			for (String match:matchs) {
-				if (detected.contains(match)) {
+				String matchPinyin = PinyinTool.getPinyin(match);
+				if (detectedPinyin.contains(matchPinyin)) {
 					matchedBranch = branch;
 					break;
 				}
@@ -39,8 +42,17 @@ public class SwCallSceneLogic {
 		}
 		
 		if (null == matchedBranch) {
-			logger.error("no matched branch found for speech {} node {}", detected, curNode.getName());
-			return null;
+			if (null == dialog.getSyses() || curNode.getRetryTimes() == 0) {
+				logger.error("no matched branch found for speech {} node {}", detected, curNode.getName());
+				return null;
+			}
+			
+			for (SwCommonCallDialogNode sysNode: dialog.getSyses()) {
+				if (sysNode.getSysType() == SwCommonCallOperConstant.DIALOG_SYSTYPE_RETRY) {
+					
+				}
+			}
+			
 		}
 		
 		for (SwCommonCallDialogNode node : dialog.getNodes()) {

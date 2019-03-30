@@ -10,7 +10,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 public class SpeechParser {
 	private static final Logger logger = LoggerFactory.getLogger(SpeechParser.class);
 	
-	public static DecodeSpeechDetectResult parseSpeech(List<String> speech) {
+	public static BaiduSpeechResult parseSpeech(List<String> speech) {
 		if (null == speech) {
 			return null;
 		}
@@ -21,9 +21,9 @@ public class SpeechParser {
 		}
 		
 		XmlMapper xmlMapper = new XmlMapper();
-		DecodeSpeechDetectResult result = null;
+		BaiduSpeechResult result = null;
 		try {
-    		result = xmlMapper.readValue(sb.toString(), DecodeSpeechDetectResult.class);
+    		result = xmlMapper.readValue(sb.toString(), BaiduSpeechResult.class);
     	} catch(Exception es) {
     		logger.error("invalid detect result received {}", sb.toString());
     		return null;

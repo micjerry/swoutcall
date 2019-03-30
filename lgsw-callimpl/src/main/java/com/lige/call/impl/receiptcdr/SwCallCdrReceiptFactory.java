@@ -1,5 +1,6 @@
 package com.lige.call.impl.receiptcdr;
 
+import java.util.Calendar;
 import java.util.Map;
 
 import com.lige.call.api.cmd.SwCallReceiptCdr;
@@ -75,7 +76,7 @@ public class SwCallCdrReceiptFactory {
 	private static void addDialogParameters(SwCommonCallCdrPojo pojo, SwCallTask task) {
 		SwCallDetectNode curNode = task.getCurNode();
 		Map<String,String> paras = pojo.getParameters();
-		paras.put(SwCommonCallCdrConstant.CDRFIELD_DIALOG_SEQ, Integer.toString(curNode.getSeq()));
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_DIALOG_SEQ, Integer.toString(Calendar.getInstance().get(Calendar.SECOND)));
 		paras.put(SwCommonCallCdrConstant.CDRFIELD_DIALOG_FILEID, curNode.getNodeDefine().getFileId());
 		paras.put(SwCommonCallCdrConstant.CDRFIELD_DIALOG_DETECT, curNode.getDetected());
 	}

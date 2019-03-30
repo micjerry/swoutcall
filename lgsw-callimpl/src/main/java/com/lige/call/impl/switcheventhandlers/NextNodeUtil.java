@@ -16,6 +16,7 @@ import com.lige.call.impl.tools.ReceiptLoader;
 import com.lige.call.impl.tools.SwCallSceneLogic;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
+import com.lige.common.call.api.oper.SwCommonCallOperConstant;
 
 class NextNodeUtil {
 	private static final Logger logger = LoggerFactory.getLogger(NextNodeUtil.class);
@@ -26,16 +27,36 @@ class NextNodeUtil {
 			return null;
 		}
 		
+		List<SwCallReceipt> results = ReceiptLoader.loadReceipt(SwCallCdrReceiptFactory.makeCallDialogCdr(task));
+		
 		SwCommonCallDialogNode nextNode = SwCallSceneLogic.getNextNode(task.getCurNode().getNodeDefine(), task.getCurNode().getDetected(), task.getDialog());
 		
 		if (null == nextNode) {
-			logger.error("call: {} can not find next node hangup it, cur node: {}", task.getId(), task.getCurNode().getNodeDefine().getName());
-			return  ReceiptLoader.loadReceipt(SwCallSwitchReceiptFactory.createHangupCommand(task.getChannel().getUuid(), null));
+			if (null == task.getDialog().getSyses() || task.getCurNode().getNodeDefine().getRetryTimes() == 0) {
+				logger.error("call: {} can not find next node hangup it, cur node: {}", task.getId(), task.getCurNode().getNodeDefine().getName());
+				results.add(SwCallSwitchReceiptFactory.createHangupCommand(task.getChannel().getUuid(), null));
+				return  results;
+			}
+			
+			if (task.getCurNode().getRetry() >= task.getCurNode().getNodeDefine().getRetryTimes()) {
+				logger.error("call: {} max retry, cur node: {}", task.getId(), task.getCurNode().getNodeDefine().getName());
+				results.add(SwCallSwitchReceiptFactory.createHangupCommand(task.getChannel().getUuid(), null));
+				return  results;
+			}
+			
+			for (SwCommonCallDialogNode sysNode: task.getDialog().getSyses()) {
+				if (sysNode.getSysType().equalsIgnoreCase(SwCommonCallOperConstant.DIALOG_SYSTYPE_RETRY)) {
+					task.getCurNode().increaseRetry();
+					task.getChannel().setCurPlayedNode(sysNode);
+					results.add(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task));
+					break;
+				}
+			}
+			return  results;
 		}
 		
-		List<SwCallReceipt> results = ReceiptLoader.loadReceipt(SwCallCdrReceiptFactory.makeCallDialogCdr(task));
 		task.goToDialogNode(nextNode);
-		results.add(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task.getChannel().getUuid(), nextNode));
+		results.add(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task));
 		return results;
 	}
 	

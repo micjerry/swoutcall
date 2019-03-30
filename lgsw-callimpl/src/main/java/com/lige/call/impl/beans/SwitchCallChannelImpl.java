@@ -39,11 +39,11 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	
 	private SwCallState callState;
 	
-	private int nodeSeq;
-	
 	private String recordFileName;
 	
 	private String recordMsLength;
+	
+	private SwCommonCallDialogNode curPlayedNode;
 	
 	SwitchCallChannelImpl(SwCallTaskImpl task) {
 		this.task = task;
@@ -53,7 +53,6 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 		this.call_hangup_timestamp = 0;
 		this.callState = SwCallState.NONE;
 		this.preCallState = SwCallState.NONE;
-		this.nodeSeq = 0;
 	}
 	
 
@@ -91,7 +90,8 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	}
 
 	public void goToDialogNode(SwCommonCallDialogNode curNode) {
-		this.curNode = new SwCallDetectNodeImpl(curNode, this.nodeSeq++);
+		this.curNode = new SwCallDetectNodeImpl(curNode);
+		this.curPlayedNode = curNode;
 	}
 
 	@Override
@@ -150,5 +150,18 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	@Override
 	public String getRecordMsLength() {
 		return recordMsLength;
+	}
+
+
+	@Override
+	public SwCommonCallDialogNode getCurPlayedNode() {
+		return curPlayedNode;
+	}
+
+
+	@Override
+	public void setCurPlayedNode(SwCommonCallDialogNode node) {
+		this.curPlayedNode = node;
+		
 	}
 }
