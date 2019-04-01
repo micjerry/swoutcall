@@ -6,13 +6,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lige.call.api.cmd.SwCallReceipt;
-import com.lige.call.impl.api.SwCallDetectNode;
+import com.lige.call.impl.api.SwCallPlayAndDetected;
 import com.lige.call.impl.api.SwCallSwitchEventHandler;
 import com.lige.call.impl.api.SwCallTask;
+import com.lige.call.impl.receiptcdr.SwCallCdrReceiptFactory;
+import com.lige.call.impl.receiptswitch.SwCallSwitchReceiptFactory;
+import com.lige.call.impl.tools.ReceiptLoader;
 import com.lige.common.call.api.esl.SwCommonCallEslConstant;
 import com.lige.common.call.api.esl.SwCommonCallEslEventParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
-import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 
 public class SwEventHandlerPlayStop implements SwCallSwitchEventHandler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -21,24 +23,26 @@ public class SwEventHandlerPlayStop implements SwCallSwitchEventHandler {
 	public List<SwCallReceipt> handle(SwCommonCallEslEventPojo event, SwCallTask task) {
 		
 		String playFile = SwCommonCallEslEventParser.getCustomHeader(event, SwCommonCallEslConstant.ESLHEADER_PLAY_FILE);
-		SwCallDetectNode node = task.getCurNode();
+		SwCallPlayAndDetected playAndDetected = task.getChannel().getPlayAndDetected();
 		
-		if (null == node || null == playFile) {
+		if (null == playAndDetected || null == playFile) {
 			logger.error("can not process play stop event no node found");
 			return null;
 		}
+
 		
-		SwCommonCallDialogNode nodeDefine = node.getNodeDefine();
+		List<SwCallReceipt> results = ReceiptLoader.loadReceipt(SwCallCdrReceiptFactory.makeCallDialogPlayCdr(task));
 		
-		if (null == nodeDefine) {
-			logger.error("can not process play stop event no node define found");
-			return null;
-		}
-		
-		if (playFile.contains(nodeDefine.getPlay())) {
-			logger.info("task: {} node: {} file: {} play finished", task.getId(), NextNodeUtil.getNodeName(task), nodeDefine.getPlay());
-			node.setPlayFinished(true);
-			return NextNodeUtil.nextStep(task);
+		if (playFile.contains(playAndDetected.getFileName())) {
+			logger.info("task: {} node: {} file: {} play finished", task.getId(), NextNodeUtil.getNodeName(task), playAndDetected.getFileName());
+			playAndDetected.setPlayFinished(true);
+			if (playAndDetected.isHangupAfterPlay()) {
+				logger.info("task: {} node: {} hangup", task.getId(), NextNodeUtil.getNodeName(task));
+				results.add(SwCallSwitchReceiptFactory.createHangupCommand(task.getChannel().getUuid(), null));
+				return results;
+			}
+			
+			return NextNodeUtil.nextStep(task, results);
 		} else {
 			logger.error("unkown play stop event");
 		}

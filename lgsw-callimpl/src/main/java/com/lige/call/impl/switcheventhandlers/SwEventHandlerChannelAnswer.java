@@ -41,8 +41,8 @@ public class SwEventHandlerChannelAnswer implements SwCallSwitchEventHandler {
 			firstNode = dialog.getNodes().get(0);
 		}
 		
-		task.goToDialogNode(firstNode);
-		return ReceiptLoader.loadReceipt(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task));
+		task.getChannel().gotoLogicNode(firstNode);
+		return ReceiptLoader.loadReceipt(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task, false));
 	}
 
 }

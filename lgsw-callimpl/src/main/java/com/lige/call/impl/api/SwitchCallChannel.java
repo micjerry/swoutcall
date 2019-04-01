@@ -27,7 +27,11 @@ public interface SwitchCallChannel {
 	
 	public String getRecordMsLength();
 	
-	public SwCommonCallDialogNode getCurPlayedNode();
+	public SwCallPlayAndDetected getPlayAndDetected();
 	
-	public void setCurPlayedNode(SwCommonCallDialogNode node);
+	public void setPlayAndDetected(SwCommonCallDialogNode node);
+	
+	public SwCallDetectNode getLogicNode();
+	
+	public void gotoLogicNode(SwCommonCallDialogNode node);
 }

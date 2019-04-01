@@ -1,10 +1,10 @@
 package com.lige.call.impl.receiptswitch;
 
 import com.lige.call.api.cmd.SwCallReceiptSwitch;
+import com.lige.call.impl.api.SwCallPlayAndDetected;
 import com.lige.call.impl.api.SwCallTask;
 import com.lige.common.call.api.config.sw.SwCommonSwitchConfig;
 import com.lige.common.call.api.esl.SwCommonCallEslCommandPojo;
-import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 
 public class SwCallSwitchReceiptFactory {
 	public static final String COMMAND_NAME_EXECUTE = "execute";
@@ -15,11 +15,11 @@ public class SwCallSwitchReceiptFactory {
 	public static final String APP_NAME_SWITCH_PLAY = "playback";
 	public static final String RECEIPT_NAME_SWITCH_DETECT = "detect";
 
-	public static SwCallReceiptSwitch createPlayAndDetectCommand(SwCallTask task) {	
+	public static SwCallReceiptSwitch createPlayAndDetectCommand(SwCallTask task, boolean hangup) {	
 		String uuid = task.getChannel().getUuid();
-		SwCommonCallDialogNode node = task.getChannel().getCurPlayedNode();
+		SwCallPlayAndDetected playAndDetected = task.getChannel().getPlayAndDetected();
 		
-		if (null == node || null == uuid) 
+		if (null == playAndDetected || null == uuid) 
 			return null;
 		
 		SwCallReceiptSwitchImpl command = new SwCallReceiptSwitchImpl(uuid, APP_NAME_SWITCH_PLAYANDETECT);
@@ -31,14 +31,14 @@ public class SwCallSwitchReceiptFactory {
 		StringBuilder argsb = new StringBuilder();
 		
 		//No branch play and hang
-		if ((null == node.getBranchs() || node.getBranchs().isEmpty()) && (node.getSysType() == null || "".equals(node.getSysType()))) {
+		if (hangup) {
 			playPojo.setAppName(APP_NAME_SWITCH_PLAY);
-			argsb.append(node.getPlay());
+			argsb.append(playAndDetected.getFileName());
 		} else {
 			//wait 5 seconds for the user to say something after play
-			int duration = node.getDuration() * 1000 + 5000;
+			int duration = playAndDetected.getDuration() * 1000 + 5000;
 			playPojo.setAppName(APP_NAME_SWITCH_PLAYANDETECT);
-			argsb.append(node.getPlay());
+			argsb.append(playAndDetected.getFileName());
 			argsb.append("detect:unimrcp {start-input-timers=false,no-input-timeout=");
 			argsb.append(Integer.toString(duration));
 			argsb.append(",recognition-timeout=5000}hello");

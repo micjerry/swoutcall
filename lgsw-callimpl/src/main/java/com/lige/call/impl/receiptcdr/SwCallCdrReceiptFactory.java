@@ -1,10 +1,9 @@
 package com.lige.call.impl.receiptcdr;
 
-import java.util.Calendar;
 import java.util.Map;
 
 import com.lige.call.api.cmd.SwCallReceiptCdr;
-import com.lige.call.impl.api.SwCallDetectNode;
+import com.lige.call.impl.api.SwCallPlayAndDetected;
 import com.lige.call.impl.api.SwCallTask;
 import com.lige.common.call.api.cdr.SwCommonCallCdrConstant;
 import com.lige.common.call.api.cdr.SwCommonCallCdrPojo;
@@ -28,8 +27,8 @@ public class SwCallCdrReceiptFactory {
 		return cdrImpl;
 	}
 	
-	public static SwCallReceiptCdr makeCallDialogCdr(SwCallTask task) {
-		if (null == task || task.getCurNode() == null)
+	public static SwCallReceiptCdr makeCallDialogPlayCdr(SwCallTask task) {
+		if (null == task || task.getChannel().getPlayAndDetected() == null)
 			return null;
 		
 		SwCallReceiptCdrImpl cdrImpl = new SwCallReceiptCdrImpl(task.getId(), SwCommonCallCdrConstant.CDRNAME_CALL_DIALOG);
@@ -38,7 +37,21 @@ public class SwCallCdrReceiptFactory {
 		pojo.setName(SwCommonCallCdrConstant.CDRNAME_CALL_EVENT);
 		
 		addCommonParameters(pojo, task);
-		addDialogParameters(pojo, task);
+		addDialogPlayParameters(pojo, task);
+		return cdrImpl;
+	}
+	
+	public static SwCallReceiptCdr makeCallDialogDetectCdr(SwCallTask task) {
+		if (null == task || task.getChannel().getPlayAndDetected() == null)
+			return null;
+		
+		SwCallReceiptCdrImpl cdrImpl = new SwCallReceiptCdrImpl(task.getId(), SwCommonCallCdrConstant.CDRNAME_CALL_DIALOG);
+		SwCommonCallCdrPojo pojo = new SwCommonCallCdrPojo();
+		pojo.setId(task.getId());
+		pojo.setName(SwCommonCallCdrConstant.CDRNAME_CALL_EVENT);
+		
+		addCommonParameters(pojo, task);
+		addDialogDetectParameters(pojo, task);
 		return cdrImpl;
 	}
 	
@@ -73,12 +86,18 @@ public class SwCallCdrReceiptFactory {
 		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_HANGUPCAUSE, Integer.toString(task.getChannel().getHangupCause()));
 	}
 	
-	private static void addDialogParameters(SwCommonCallCdrPojo pojo, SwCallTask task) {
-		SwCallDetectNode curNode = task.getCurNode();
+	private static void addDialogPlayParameters(SwCommonCallCdrPojo pojo, SwCallTask task) {
+		SwCallPlayAndDetected play = task.getChannel().getPlayAndDetected();
 		Map<String,String> paras = pojo.getParameters();
-		paras.put(SwCommonCallCdrConstant.CDRFIELD_DIALOG_SEQ, Integer.toString(Calendar.getInstance().get(Calendar.SECOND)));
-		paras.put(SwCommonCallCdrConstant.CDRFIELD_DIALOG_FILEID, curNode.getNodeDefine().getFileId());
-		paras.put(SwCommonCallCdrConstant.CDRFIELD_DIALOG_DETECT, curNode.getDetected());
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_DIALOG_SEQ, Integer.toString(play.getPlaySeq()));
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_DIALOG_FILEID, play.getFileId());
+	}
+	
+	private static void addDialogDetectParameters(SwCommonCallCdrPojo pojo, SwCallTask task) {
+		SwCallPlayAndDetected play = task.getChannel().getPlayAndDetected();
+		Map<String,String> paras = pojo.getParameters();
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_DIALOG_SEQ, Integer.toString(play.getDetectedSeq()));
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_DIALOG_DETECT, play.getDetected());
 	}
 	
 	private static void addRecordParameters(SwCommonCallCdrPojo pojo, SwCallTask task) {

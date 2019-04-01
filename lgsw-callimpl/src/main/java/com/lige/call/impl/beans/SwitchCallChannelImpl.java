@@ -6,8 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lige.call.impl.api.SwCallDetectNode;
+import com.lige.call.impl.api.SwCallPlayAndDetected;
 import com.lige.call.impl.api.SwCallState;
 import com.lige.call.impl.api.SwitchCallChannel;
+import com.lige.call.impl.asr.AsrFactory;
 import com.lige.common.call.api.esl.SwCommonCallEslEventParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
@@ -43,7 +45,9 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	
 	private String recordMsLength;
 	
-	private SwCommonCallDialogNode curPlayedNode;
+	private SwCallDetectNode logicNode;
+	
+	private SwCallPlayAndDetected playAndDetected;
 	
 	SwitchCallChannelImpl(SwCallTaskImpl task) {
 		this.task = task;
@@ -87,11 +91,6 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 
 	public SwCallDetectNode getCurNode() {
 		return curNode;
-	}
-
-	public void goToDialogNode(SwCommonCallDialogNode curNode) {
-		this.curNode = new SwCallDetectNodeImpl(curNode);
-		this.curPlayedNode = curNode;
 	}
 
 	@Override
@@ -154,14 +153,30 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 
 
 	@Override
-	public SwCommonCallDialogNode getCurPlayedNode() {
-		return curPlayedNode;
+	public SwCallPlayAndDetected getPlayAndDetected() {
+		return playAndDetected;
 	}
 
 
 	@Override
-	public void setCurPlayedNode(SwCommonCallDialogNode node) {
-		this.curPlayedNode = node;
-		
+	public void setPlayAndDetected(SwCommonCallDialogNode node) {
+		int seq = 0;
+		if (null != this.playAndDetected)
+			seq = this.playAndDetected.getDetectedSeq() + 1;
+		this.playAndDetected = AsrFactory.makePlayAndDetected(node, seq);
 	}
+
+
+	@Override
+	public SwCallDetectNode getLogicNode() {
+		return logicNode;
+	}
+
+
+	@Override
+	public void gotoLogicNode(SwCommonCallDialogNode node) {
+		this.logicNode = AsrFactory.makeLogicNode(node);
+		this.setPlayAndDetected(node);
+	}
+
 }

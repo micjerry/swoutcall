@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import com.lige.common.call.api.oper.SwCommonCallDialog;
 import com.lige.common.call.api.oper.SwCommonCallDialogBranch;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
-import com.lige.common.call.api.oper.SwCommonCallOperConstant;
 
 public class SwCallSceneLogic {
 	private static final Logger logger = LoggerFactory.getLogger(SwCallSceneLogic.class);
@@ -41,25 +40,14 @@ public class SwCallSceneLogic {
 			}	
 		}
 		
-		if (null == matchedBranch) {
-			if (null == dialog.getSyses() || curNode.getRetryTimes() == 0) {
-				logger.error("no matched branch found for speech {} node {}", detected, curNode.getName());
-				return null;
-			}
-			
-			for (SwCommonCallDialogNode sysNode: dialog.getSyses()) {
-				if (sysNode.getSysType() == SwCommonCallOperConstant.DIALOG_SYSTYPE_RETRY) {
-					
+		if (null != matchedBranch) {
+			for (SwCommonCallDialogNode node : dialog.getNodes()) {
+				if (node.getName().equalsIgnoreCase(matchedBranch.getNode())) {
+					return node;
 				}
-			}
-			
+			}	
 		}
 		
-		for (SwCommonCallDialogNode node : dialog.getNodes()) {
-			if (node.getName().equalsIgnoreCase(matchedBranch.getNode())) {
-				return node;
-			}
-		}
 		
 		return null;
 	}

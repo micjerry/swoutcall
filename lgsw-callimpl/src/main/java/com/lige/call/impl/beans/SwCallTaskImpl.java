@@ -8,14 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lige.call.impl.api.SwCallConstant;
-import com.lige.call.impl.api.SwCallDetectNode;
 import com.lige.call.impl.api.SwCallOperateHandler;
 import com.lige.call.impl.api.SwCallSwitchEventHandler;
 import com.lige.call.impl.api.SwCallTask;
 import com.lige.call.impl.api.SwCallTimerTask;
 import com.lige.call.impl.api.SwitchCallChannel;
 import com.lige.common.call.api.oper.SwCommonCallDialog;
-import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 import com.lige.common.call.api.oper.SwCommonCallSessionCreatePojo;
 
 class SwCallTaskImpl implements SwCallTask {
@@ -148,17 +146,6 @@ class SwCallTaskImpl implements SwCallTask {
 	@Override
 	public String getSwitchHost() {
 		return switchHost;
-	}
-
-	@Override
-	public SwCallDetectNode getCurNode() {
-		return channel.getCurNode();
-	}
-
-	@Override
-	public void goToDialogNode(SwCommonCallDialogNode node) {
-		logger.info("call: {} dialog goto node: {}.", this.getId(), node.getName());
-		channel.goToDialogNode(node);
 	}
 
 	@Override

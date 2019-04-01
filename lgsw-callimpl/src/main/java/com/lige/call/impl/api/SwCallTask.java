@@ -3,7 +3,6 @@ package com.lige.call.impl.api;
 import java.util.Map;
 
 import com.lige.common.call.api.oper.SwCommonCallDialog;
-import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 
 public interface SwCallTask {
 
@@ -34,10 +33,6 @@ public interface SwCallTask {
 	public Map<String, SwCallTimerTask> getTimerTasks();
 	
 	public SwitchCallChannel getChannel();
-	
-	public SwCallDetectNode getCurNode();
-	
-	public void goToDialogNode(SwCommonCallDialogNode node);
 	
 	public void loadNewTimer();
 	

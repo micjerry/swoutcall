@@ -6,9 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lige.call.api.cmd.SwCallReceipt;
+import com.lige.call.impl.api.SwCallPlayAndDetected;
 import com.lige.call.impl.api.SwCallSwitchEventHandler;
 import com.lige.call.impl.api.SwCallTask;
+import com.lige.call.impl.receiptcdr.SwCallCdrReceiptFactory;
 import com.lige.call.impl.tools.BaiduSpeechResult;
+import com.lige.call.impl.tools.ReceiptLoader;
 import com.lige.call.impl.tools.SpeechParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 
@@ -27,9 +30,19 @@ public class SwEventHandlerDetectSpeech implements SwCallSwitchEventHandler {
 		}
 		
 		logger.info("task: {} node: {} speech detected: {}", task.getId(), NextNodeUtil.getNodeName(task), detected);
-		task.getCurNode().setDetected(detected);
 		
-		return NextNodeUtil.nextStep(task);
+		SwCallPlayAndDetected playAndDetected = task.getChannel().getPlayAndDetected();
+		
+		if (null == playAndDetected) {
+			logger.error("task: {} no detected node found", task.getId());
+			return null;
+		}
+		
+		playAndDetected.setDetected(detected);
+		
+		List<SwCallReceipt> results = ReceiptLoader.loadReceipt(SwCallCdrReceiptFactory.makeCallDialogDetectCdr(task));
+		
+		return NextNodeUtil.nextStep(task, results);
 	}
 
 }
