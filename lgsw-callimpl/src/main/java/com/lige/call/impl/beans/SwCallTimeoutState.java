@@ -11,6 +11,7 @@ import com.lige.call.impl.api.SwCallTimerTask;
 import com.lige.call.impl.receiptswitch.SwCallSwitchReceiptFactory;
 import com.lige.call.impl.receiptsys.SwCallSysReceiptFactory;
 import com.lige.call.impl.tools.ReceiptLoader;
+import com.lige.common.call.api.cdr.SwCommonCallCdrConstant;
 
 class SwCallTimeoutState implements SwCallTimerTask {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -53,13 +54,27 @@ class SwCallTimeoutState implements SwCallTimerTask {
 	public List<SwCallReceipt> run() {
 		if (this.stageExpireLimit-- < 0) {
 			logger.info("call: {} timer: {} triggered.", task.getId(), name);
-			this.executed = true;
-			if ((task.getChannel().getCallState().compareTo(SwCallState.RINGING) >= 0)
-					&& (task.getChannel().getCallState().compareTo(SwCallState.HANGING) < 0)) {
+			this.executed = true;	
+			switch (task.getChannel().getCallState()) {
+			case NONE:
+				task.getChannel().setHangupCause(SwCommonCallCdrConstant.CDRFIELD_HANGUPCAUSE_ENUM_CREATEFAIL);
+				return ReceiptLoader.loadReceipt(SwCallSysReceiptFactory.createForceEndCmd(task));
+			case CREATING:
+				task.getChannel().setHangupCause(SwCommonCallCdrConstant.CDRFIELD_HANGUPCAUSE_ENUM_CREATEFAIL);
+				return ReceiptLoader.loadReceipt(SwCallSysReceiptFactory.createForceEndCmd(task));
+			case CALLING:
+				task.getChannel().setHangupCause(SwCommonCallCdrConstant.CDRFIELD_HANGUPCAUSE_ENUM_RUNEXPIRED);
 				return ReceiptLoader
 						.loadReceipt(SwCallSwitchReceiptFactory.createHangupCommand(task.getChannel().getUuid(), null));
-			} else {
+			case HANGING:
+				task.getChannel().setHangupCause(SwCommonCallCdrConstant.CDRFIELD_HANGUPCAUSE_ENUM_NORMAL);
 				return ReceiptLoader.loadReceipt(SwCallSysReceiptFactory.createForceEndCmd(task));
+			case RINGING:
+				task.getChannel().setHangupCause(SwCommonCallCdrConstant.CDRFIELD_HANGUPCAUSE_ENUM_RINGEXPIRED);
+				return ReceiptLoader
+						.loadReceipt(SwCallSwitchReceiptFactory.createHangupCommand(task.getChannel().getUuid(), null));
+			default:
+				break;
 			}
 		}
 

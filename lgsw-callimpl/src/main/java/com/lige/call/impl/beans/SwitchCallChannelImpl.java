@@ -1,6 +1,7 @@
 package com.lige.call.impl.beans;
 
 import java.util.Calendar;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,23 +14,12 @@ import com.lige.call.impl.asr.AsrFactory;
 import com.lige.common.call.api.esl.SwCommonCallEslEventParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
+import com.lige.common.call.api.oper.SwCommonCallOperConstant;
 
 class SwitchCallChannelImpl implements SwitchCallChannel {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private SwCallTaskImpl task;
-	
-	// the call initial time
-	private long call_initial_timestamp;
-	
-	// the switch call switch channel create time
-	private long call_created_timestamp;
-	
-	// the switch call answered time
-	private long call_answered_timestamp;
-	
-	// the switch call hang time
-	private long call_hangup_timestamp;
 	
 	private String uuid;
 	
@@ -49,14 +39,13 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	
 	private SwCallPlayAndDetected playAndDetected;
 	
+	private HashMap<String, Integer> timeStamps;
+	
 	SwitchCallChannelImpl(SwCallTaskImpl task) {
 		this.task = task;
-		this.call_initial_timestamp = 0;
-		this.call_created_timestamp = 0;
-		this.call_answered_timestamp = 0;
-		this.call_hangup_timestamp = 0;
 		this.callState = SwCallState.NONE;
 		this.preCallState = SwCallState.NONE;
+		timeStamps = new HashMap<String, Integer>();
 	}
 	
 
@@ -64,29 +53,20 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	public String getUuid() {
 		return uuid;
 	}
-
+	
 	@Override
-	public long getCreateTime() {
-		return call_created_timestamp;
-	}
-
-	@Override
-	public long getAnswerTime() {
-		return call_answered_timestamp;
-	}
-
-	@Override
-	public long getHanupTime() {
-		return call_hangup_timestamp;
+	public int getStateTimeStamp(SwCallState state) {
+		Integer value = timeStamps.get(state.toString());
+		if (null == value) {
+			return 0;
+		}
+		
+		return value;
 	}
 
 	@Override
 	public int getHangupCause() {
 		return hangupCause;
-	}
-
-	public long getInitialTime() {
-		return call_initial_timestamp;
 	}
 
 	public SwCallDetectNode getCurNode() {
@@ -95,27 +75,21 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 
 	@Override
 	public void setCallState(SwCallState state, SwCommonCallEslEventPojo event) {
-		logger.info("call {} state change from {} to {}", task.getId(), this.callState, state);
+		logger.info("task: {} state change from {} to {}", task.getId(), this.callState, state);
 		this.preCallState = this.callState;
 		this.callState = state;
+		timeStamps.put(state.toString(), Calendar.getInstance().get(Calendar.SECOND));
 		switch (state) {
 		case CREATING:
-			this.call_initial_timestamp = Calendar.getInstance().get(Calendar.SECOND);
+		case CALLING:
+		case HANGING:
 			break;
 		case RINGING:
 			this.uuid = SwCommonCallEslEventParser.getSwitchChannelId(event);
-			call_created_timestamp = Calendar.getInstance().get(Calendar.SECOND);
-			break;
-		case CALLING:
-			call_answered_timestamp = Calendar.getInstance().get(Calendar.SECOND);
-			break;
-		case HANGING:
-			call_hangup_timestamp =  Calendar.getInstance().get(Calendar.SECOND);
 			break;
 		default:
 			break;
 		}
-		
 	}
 	
 	@Override
@@ -164,6 +138,11 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 		if (null != this.playAndDetected)
 			seq = this.playAndDetected.getDetectedSeq() + 1;
 		this.playAndDetected = AsrFactory.makePlayAndDetected(node, seq);
+		if (node.getSysType().equals(SwCommonCallOperConstant.DIALOG_SYSTYPE_RETRY)) {
+			if (null != logicNode) {
+				logicNode.increaseRetriedTimes();
+			}
+		}
 	}
 
 
@@ -177,6 +156,12 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	public void gotoLogicNode(SwCommonCallDialogNode node) {
 		this.logicNode = AsrFactory.makeLogicNode(node);
 		this.setPlayAndDetected(node);
+	}
+
+
+	@Override
+	public void setHangupCause(int hangupCause) {
+		this.hangupCause = hangupCause;
 	}
 
 }

@@ -22,11 +22,11 @@ public class SwEventHandlerRecordStop implements SwCallSwitchEventHandler {
 		String fileName = SwCommonCallEslEventParser.getCustomHeader(event, SwCommonCallEslConstant.ESLHEADER_RECORD_FILE);
 		String recordMslength = SwCommonCallEslEventParser.getCustomHeader(event, SwCommonCallEslConstant.ESLHEADER_RECORD_MSLENGTH);
 		if (null == fileName || "".equals(fileName)) {
-			logger.error("call: {} invalid record start event", task.getId());
+			logger.error("task: {} invalid record start event", task.getId());
 			return null;
 		}
 		
-		logger.info("call: {} record start event received file: {} length: {}ms ", task.getId(), fileName, recordMslength);
+		logger.info("task: {} record start event received file: {} length: {}ms ", task.getId(), fileName, recordMslength);
 		
 		task.getChannel().setRecordFile(fileName);
 		task.getChannel().setRecordMsLength(recordMslength);

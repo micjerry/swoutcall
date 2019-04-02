@@ -25,12 +25,12 @@ class NextNodeUtil {
 		SwCallDetectNode logicNode = task.getChannel().getLogicNode();
 		
 		if (null == logicNode || null == playAndDetected) {
-			logger.error("call: {} no logic or play define", task.getId());
+			logger.error("task: {} no logic or play define", task.getId());
 			return results;
 		}
 		
 		if (null == playAndDetected.getDetected() || !playAndDetected.isPlayFinished()) {
-			logger.info("call: {} wait detect result or play finished", task.getId());
+			logger.info("task: {} wait detect result or play finished", task.getId());
 			return results;
 		}
 
@@ -44,25 +44,14 @@ class NextNodeUtil {
 				return results;
 			}
 			
-			task.getChannel().setPlayAndDetected(sysNode);;
-
-			if (sysNode.getSysType().equals(SwCommonCallOperConstant.DIALOG_SYSTYPE_RETRY)){		
-				logicNode.increaseRetriedTimes();
-				results.add(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task, false));
-				return results;
-			}
-			
-			if (sysNode.getSysType().equals(SwCommonCallOperConstant.DIALOG_SYSTYPE_BYE)) {
-				task.getChannel().getPlayAndDetected().setHangupAfterPlay(true);
-				results.add(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task, true));
-				return results;
-			}
+			task.getChannel().setPlayAndDetected(sysNode);
+			results.add(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task));
 			
 			return  results;
 		}
 		
 		task.getChannel().gotoLogicNode(nextNode);
-		results.add(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task, false));
+		results.add(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task));
 		return results;
 	}
 	
@@ -88,7 +77,7 @@ class NextNodeUtil {
 		SwCallDetectNode logicNode = task.getChannel().getLogicNode();
 		
 		if (null == task.getDialog().getSyses() || null == logicNode) {
-			logger.error("call: {} cur node: {}, no sys nodes", task.getId(), getNodeName(task));
+			logger.error("task: {} cur node: {}, no sys nodes", task.getId(), getNodeName(task));
 			return  null;
 		}
 		
@@ -98,21 +87,23 @@ class NextNodeUtil {
 		for (SwCommonCallDialogNode sysNode: task.getDialog().getSyses()) {
 			if (sysNode.getSysType().equalsIgnoreCase(SwCommonCallOperConstant.DIALOG_SYSTYPE_RETRY)) {
 				retryNode = sysNode;
+				continue;
 			}
 			
 			if (sysNode.getSysType().equalsIgnoreCase(SwCommonCallOperConstant.DIALOG_SYSTYPE_BYE)) {
 				byeNode = sysNode;
+				continue;
 			}
 		}
 		
 		
 		if (logicNode.getMaxRetryTimes() == 0) {
-			logger.error("call: {} cur node: {}, no retry", task.getId(), getNodeName(task));
+			logger.error("task: {} cur node: {}, no retry", task.getId(), getNodeName(task));
 			return byeNode;
 		}
 		
 		if (logicNode.getRetriedTimes() >= logicNode.getMaxRetryTimes()) {
-			logger.error("call: {} cur node: {} max retry", task.getId(), getNodeName(task));
+			logger.error("task: {} cur node: {} max retry", task.getId(), getNodeName(task));
 			return  byeNode;
 		}
 		

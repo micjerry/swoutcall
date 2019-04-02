@@ -13,9 +13,6 @@ public interface SwCallConstant {
 	String TIMER_CHKSTAGE_ANSWERED = "calling";
 	String TIMER_CHKSTAGE_HANGED = "hanging";
 	
-	//TODO hangup expired
-	String HANGUP_CAUSE_EXPIRED = "501";
-	
 	public static final int TIMELIMIT_HANGING = 10;
 	public static final int TIMELIMIT_CREATING = 20;
 	public static final int TIMELIMIT_FINALIZE = 60;

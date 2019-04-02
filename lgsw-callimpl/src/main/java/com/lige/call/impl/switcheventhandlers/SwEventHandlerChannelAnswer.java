@@ -25,7 +25,7 @@ public class SwEventHandlerChannelAnswer implements SwCallSwitchEventHandler {
 		SwCommonCallDialog dialog = task.getDialog();
 		SwCommonCallDialogNode firstNode = null;
 		if (null == dialog.getNodes() || dialog.getNodes().isEmpty()) {
-			logger.error("invalid dialog");
+			logger.error("task: {} answer invalid dialog", task.getId());
 			return null;
 		}
 		
@@ -37,12 +37,12 @@ public class SwEventHandlerChannelAnswer implements SwCallSwitchEventHandler {
 		}
 
 		if (null == firstNode) {
-			logger.error("no first node found");
+			logger.error("task: {} no first node found", task.getId());
 			firstNode = dialog.getNodes().get(0);
 		}
 		
 		task.getChannel().gotoLogicNode(firstNode);
-		return ReceiptLoader.loadReceipt(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task, false));
+		return ReceiptLoader.loadReceipt(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task));
 	}
 
 }

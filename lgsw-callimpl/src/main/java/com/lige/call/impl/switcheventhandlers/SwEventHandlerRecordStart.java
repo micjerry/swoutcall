@@ -20,11 +20,11 @@ public class SwEventHandlerRecordStart implements SwCallSwitchEventHandler {
 	public List<SwCallReceipt> handle(SwCommonCallEslEventPojo event, SwCallTask task) {
 		String fileName = SwCommonCallEslEventParser.getCustomHeader(event, SwCommonCallEslConstant.ESLHEADER_RECORD_FILE);
 		if (null == fileName || "".equals(fileName)) {
-			logger.error("call: {} invalid record start event", task.getId());
+			logger.error("task: {} invalid record start event", task.getId());
 			return null;
 		}
 		
-		logger.info("call: {} record start event received file: {} ", task.getId(), fileName);
+		logger.info("task: {} record start event received file: {} ", task.getId(), fileName);
 		
 		task.getChannel().setRecordFile(fileName);
 		

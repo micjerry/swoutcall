@@ -36,7 +36,7 @@ class SwCallExecutorImpl implements SwCallExecutor {
 	public List<SwCallReceipt> handleOperation(SwCommonCallSessionOperPojo operation) {
 		SwCallOperateHandler handler = callTask.getOptHandler(operation.getName());
 		if (handler == null) {
-			logger.error("opid: id {} name: {} command {} is not permitted , permited is false", operation.getId(), operation.getName(), operation.getCommand());
+			logger.error("task: {} operate: {} is not permitted , permited is false", callTask.getId(), operation.getName());
 			return null;
 		}
 		
@@ -56,9 +56,8 @@ class SwCallExecutorImpl implements SwCallExecutor {
 		SwCallSwitchEventHandler handler = callTask.getSwitchEventHandler(SwCommonCallEslEventParser.getName(event));
 		
 		if (handler == null) {
-			logger.error("eventide: uid {} event: name {} of conference {} can not be handle", 
-					SwCommonCallEslEventParser.getSwitchChannelId(event), 
-					SwCommonCallEslEventParser.getName(event), callTask.getId());
+			logger.error("task: {} event: {} can not be handle", 
+					 callTask.getId(), SwCommonCallEslEventParser.getName(event));
 			return null;
 		}
 		
@@ -91,10 +90,10 @@ class SwCallExecutorImpl implements SwCallExecutor {
 							commands.addAll(result);
 						}
 					}
-					logger.info("task:{} executed",key);
+					logger.info("task: {} timer:{} executed", callTask.getId(), key);
 				}
 			}else {
-				logger.info("remove task:{}", key);
+				logger.info("task: {} remove timer:{}", callTask.getId(), key);
 				iterator.remove();
 				timertasks.remove(key);
 				continue;

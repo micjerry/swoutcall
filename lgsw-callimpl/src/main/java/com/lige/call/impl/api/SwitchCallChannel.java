@@ -7,11 +7,9 @@ public interface SwitchCallChannel {
 	
 	public String getUuid();
 	
-	public long getCreateTime();
+	public int getStateTimeStamp(SwCallState state);
 	
-	public long getAnswerTime();
-	
-	public long getHanupTime();
+	public void setHangupCause(int hangupCause);
 	
 	public int getHangupCause();
 	

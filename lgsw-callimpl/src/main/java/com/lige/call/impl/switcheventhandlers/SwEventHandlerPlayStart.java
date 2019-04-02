@@ -22,7 +22,7 @@ public class SwEventHandlerPlayStart implements SwCallSwitchEventHandler {
 		SwCallPlayAndDetected playAndDetected = task.getChannel().getPlayAndDetected();
 		
 		if (null == playAndDetected || null == playFile) {
-			logger.error("can not process play start event no node found");
+			logger.error("task: {} node: {} can not process play start event no node found", task.getId(), NextNodeUtil.getNodeName(task));
 			return null;
 		}
 		
@@ -30,7 +30,7 @@ public class SwEventHandlerPlayStart implements SwCallSwitchEventHandler {
 			logger.info("task: {} node: {} file: {} start to play", task.getId(), NextNodeUtil.getNodeName(task), playAndDetected.getFileName());
 			playAndDetected.setPlayStarted(true);
 		} else {
-			logger.error("unkown play start event");
+			logger.error("task: {} node: {} unkown play start event", task.getId(), NextNodeUtil.getNodeName(task));
 		}
 		
 		return null;

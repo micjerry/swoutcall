@@ -26,7 +26,7 @@ public class SwEventHandlerPlayStop implements SwCallSwitchEventHandler {
 		SwCallPlayAndDetected playAndDetected = task.getChannel().getPlayAndDetected();
 		
 		if (null == playAndDetected || null == playFile) {
-			logger.error("can not process play stop event no node found");
+			logger.error("task: {} can not process play stop event no node found", task.getId());
 			return null;
 		}
 
@@ -44,7 +44,7 @@ public class SwEventHandlerPlayStop implements SwCallSwitchEventHandler {
 			
 			return NextNodeUtil.nextStep(task, results);
 		} else {
-			logger.error("unkown play stop event");
+			logger.error("task: {} node: {} unkown play stop event filename {}",  task.getId(),  NextNodeUtil.getNodeName(task), playFile);
 		}
 		
 		return null;

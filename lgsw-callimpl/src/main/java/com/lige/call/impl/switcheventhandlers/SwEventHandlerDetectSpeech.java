@@ -24,7 +24,7 @@ public class SwEventHandlerDetectSpeech implements SwCallSwitchEventHandler {
 		String detected =  "*";
 		
 		if (null == result) {
-			logger.error("Can not parse detect result");
+			logger.error("task: {} node: {} can not parse detect result", task.getId(), NextNodeUtil.getNodeName(task));
 		} else {
 			detected = result.getInterpretation().getInput();
 		}
@@ -34,7 +34,7 @@ public class SwEventHandlerDetectSpeech implements SwCallSwitchEventHandler {
 		SwCallPlayAndDetected playAndDetected = task.getChannel().getPlayAndDetected();
 		
 		if (null == playAndDetected) {
-			logger.error("task: {} no detected node found", task.getId());
+			logger.error("task: {} node: {} no detected node found", task.getId(), NextNodeUtil.getNodeName(task));
 			return null;
 		}
 		

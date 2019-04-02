@@ -2,6 +2,7 @@ package com.lige.call.impl.asr;
 
 import com.lige.call.impl.api.SwCallPlayAndDetected;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
+import com.lige.common.call.api.oper.SwCommonCallOperConstant;
 
 class SwCallPlayAndDetectedImpl implements SwCallPlayAndDetected {
 	
@@ -30,7 +31,11 @@ class SwCallPlayAndDetectedImpl implements SwCallPlayAndDetected {
 		this.detected = null;
 		this.playStarted = false;
 		this.playFinished = false;
-		this.hangAfterPlay = node.isHangup();
+		if (node.isHangup() || node.getSysType().equals(SwCommonCallOperConstant.DIALOG_SYSTYPE_BYE)) {
+			this.hangAfterPlay = true;
+		} else {
+			this.hangAfterPlay = false;
+		}
 		this.playSeq = seq;
 		this.detectSeq = seq + 1;
 	}

@@ -13,9 +13,8 @@ public class SwCallSwitchReceiptFactory {
 	
 	public static final String APP_NAME_SWITCH_PLAYANDETECT = "play_and_detect_speech";
 	public static final String APP_NAME_SWITCH_PLAY = "playback";
-	public static final String RECEIPT_NAME_SWITCH_DETECT = "detect";
 
-	public static SwCallReceiptSwitch createPlayAndDetectCommand(SwCallTask task, boolean hangup) {	
+	public static SwCallReceiptSwitch createPlayAndDetectCommand(SwCallTask task) {	
 		String uuid = task.getChannel().getUuid();
 		SwCallPlayAndDetected playAndDetected = task.getChannel().getPlayAndDetected();
 		
@@ -31,7 +30,7 @@ public class SwCallSwitchReceiptFactory {
 		StringBuilder argsb = new StringBuilder();
 		
 		//No branch play and hang
-		if (hangup) {
+		if (playAndDetected.isHangupAfterPlay()) {
 			playPojo.setAppName(APP_NAME_SWITCH_PLAY);
 			argsb.append(playAndDetected.getFileName());
 		} else {

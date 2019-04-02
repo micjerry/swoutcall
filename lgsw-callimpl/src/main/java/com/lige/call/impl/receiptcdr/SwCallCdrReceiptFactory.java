@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.lige.call.api.cmd.SwCallReceiptCdr;
 import com.lige.call.impl.api.SwCallPlayAndDetected;
+import com.lige.call.impl.api.SwCallState;
 import com.lige.call.impl.api.SwCallTask;
 import com.lige.common.call.api.cdr.SwCommonCallCdrConstant;
 import com.lige.common.call.api.cdr.SwCommonCallCdrPojo;
@@ -80,9 +81,9 @@ public class SwCallCdrReceiptFactory {
 	
 	private static void addCallParameters(SwCommonCallCdrPojo pojo, SwCallTask task) {
 		Map<String,String> paras = pojo.getParameters();
-		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_CREATETIME, Long.toString(task.getChannel().getCreateTime()));
-		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_ANSWERTIME, Long.toString(task.getChannel().getAnswerTime()));
-		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_HANGUPTIME, Long.toString(task.getChannel().getHanupTime()));
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_CREATETIME, Integer.toString(task.getChannel().getStateTimeStamp(SwCallState.CREATING)));
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_ANSWERTIME, Integer.toString(task.getChannel().getStateTimeStamp(SwCallState.CALLING)));
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_HANGUPTIME, Integer.toString(task.getChannel().getStateTimeStamp(SwCallState.HANGING)));
 		paras.put(SwCommonCallCdrConstant.CDRFIELD_CALL_HANGUPCAUSE, Integer.toString(task.getChannel().getHangupCause()));
 	}
 	
