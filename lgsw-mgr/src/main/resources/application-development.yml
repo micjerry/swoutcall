@@ -1,7 +1,0 @@
-logging:
-    file: D://JavaWorkSpace//CamelFrameWork//ConferenceControl//ConferenceControl_FrameWork//log//${spring.application.name}.log
-    level:
-        root: WARN
-        org.springframework: DEBUG
-
-    MaxFileSize: 100M

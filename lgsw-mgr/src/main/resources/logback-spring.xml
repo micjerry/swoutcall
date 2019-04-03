@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 	<configuration>
 	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
-	<!-- ?<include resource="org/springframework/boot/logging/logback/console-appender.xml" /> -->  <!-- 关闭控制台日志打印 -->
+	<!-- ?<include resource="org/springframework/boot/logging/logback/console-appender.xml" /> --> 
     <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
      <appender name="TIME_FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -19,7 +19,7 @@
      </appender>
      <root level="INFO">
         <appender-ref ref="TIME_FILE" />
-        <!-- <appender-ref ref="CONSOLE" /> -->    <!-- 关闭控制台日志打印 -->
+        <!-- <appender-ref ref="CONSOLE" /> -->  
      </root>
 	</configuration>
                                                              
