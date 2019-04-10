@@ -14,7 +14,7 @@ import com.lige.common.call.api.esl.SwCommonCallEslConstant;
 import com.lige.common.call.api.esl.SwCommonCallEslEventParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 
-public class SwEventHandlerRecordStop implements SwCallSwitchEventHandler {
+class SwEventHandlerRecordStop implements SwCallSwitchEventHandler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
@@ -32,6 +32,11 @@ public class SwEventHandlerRecordStop implements SwCallSwitchEventHandler {
 		task.getChannel().setRecordMsLength(recordMslength);
 		
 		return ReceiptLoader.loadReceipt(SwCallCdrReceiptFactory.makeCallRecordCdr(task));
+	}
+
+	@Override
+	public String getName() {
+		return SwCommonCallEslConstant.ESLEVENT_RECORD_STOP;
 	}
 
 }

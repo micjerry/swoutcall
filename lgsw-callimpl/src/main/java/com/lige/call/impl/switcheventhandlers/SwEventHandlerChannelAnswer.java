@@ -11,11 +11,12 @@ import com.lige.call.impl.api.SwCallSwitchEventHandler;
 import com.lige.call.impl.api.SwCallTask;
 import com.lige.call.impl.receiptswitch.SwCallSwitchReceiptFactory;
 import com.lige.call.impl.tools.ReceiptLoader;
+import com.lige.common.call.api.esl.SwCommonCallEslConstant;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 import com.lige.common.call.api.oper.SwCommonCallDialog;
 import com.lige.common.call.api.oper.SwCommonCallDialogNode;
 
-public class SwEventHandlerChannelAnswer implements SwCallSwitchEventHandler {
+class SwEventHandlerChannelAnswer implements SwCallSwitchEventHandler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
@@ -43,6 +44,11 @@ public class SwEventHandlerChannelAnswer implements SwCallSwitchEventHandler {
 		
 		task.getChannel().gotoLogicNode(firstNode);
 		return ReceiptLoader.loadReceipt(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task));
+	}
+
+	@Override
+	public String getName() {
+		return SwCommonCallEslConstant.ESLEVENT_CHANNEL_ANSWER;
 	}
 
 }

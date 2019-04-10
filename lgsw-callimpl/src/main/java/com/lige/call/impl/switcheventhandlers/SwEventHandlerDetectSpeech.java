@@ -13,9 +13,10 @@ import com.lige.call.impl.receiptcdr.SwCallCdrReceiptFactory;
 import com.lige.call.impl.tools.BaiduSpeechResult;
 import com.lige.call.impl.tools.ReceiptLoader;
 import com.lige.call.impl.tools.SpeechParser;
+import com.lige.common.call.api.esl.SwCommonCallEslConstant;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 
-public class SwEventHandlerDetectSpeech implements SwCallSwitchEventHandler {
+class SwEventHandlerDetectSpeech implements SwCallSwitchEventHandler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
@@ -43,6 +44,11 @@ public class SwEventHandlerDetectSpeech implements SwCallSwitchEventHandler {
 		List<SwCallReceipt> results = ReceiptLoader.loadReceipt(SwCallCdrReceiptFactory.makeCallDialogDetectCdr(task));
 		
 		return NextNodeUtil.nextStep(task, results);
+	}
+
+	@Override
+	public String getName() {
+		return SwCommonCallEslConstant.ESLEVENT_DETECTED_SPEECH;
 	}
 
 }

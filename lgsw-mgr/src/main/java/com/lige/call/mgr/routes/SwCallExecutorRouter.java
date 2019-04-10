@@ -7,10 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lige.call.api.exe.SwCallExecutor;
-import com.lige.call.mgr.beans.SwCallHttpResponseBean;
 import com.lige.call.mgr.beans.SwCallExecutorEventBean;
 import com.lige.call.mgr.beans.SwCallExecutorOperateBean;
 import com.lige.call.mgr.beans.SwCallExecutorTimerBean;
+import com.lige.call.mgr.beans.SwCallHttpResponseBean;
 import com.lige.call.mgr.beans.SwCallReceiptSysHandleBean;
 import com.lige.call.mgr.config.RabbitmqConfig;
 import com.lige.call.mgr.protocol.SwCallMgrProtocol;
@@ -19,6 +19,7 @@ import com.lige.call.mgr.routes.RoutePrefix.RouteSecond;
 import com.lige.common.call.api.SwCommonCallConstant;
 import com.lige.common.call.api.config.mq.SwCommonMqConfig;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
+import com.lige.common.call.api.oper.SwCommonCallSessionOperPojo;
 
 final class SwCallExecutorRouter extends RouteBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(SwCallExecutorRouter.class);
@@ -113,7 +114,7 @@ final class SwCallExecutorRouter extends RouteBuilder {
 		Predicate sys = header(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER).isEqualTo(SwCallMgrProtocol.SWCALL_COMMAND_SYS);
 		
 		//create main route
-		from(fromOperater).routeId(RoutePrefix.createMainRoute(RouteMain.ROUTE_MAIN_OPER, this.id)).unmarshal().json(JsonLibrary.Jackson, SwCallOperatePojo.class)
+		from(fromOperater).routeId(RoutePrefix.createMainRoute(RouteMain.ROUTE_MAIN_OPER, this.id)).unmarshal().json(JsonLibrary.Jackson, SwCommonCallSessionOperPojo.class)
 		.process(swOperateHandler).split(body())
 		.choice()
 		.when(http).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_HTTP, this.id))

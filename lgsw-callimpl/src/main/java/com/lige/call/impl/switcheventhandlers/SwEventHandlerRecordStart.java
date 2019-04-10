@@ -12,7 +12,7 @@ import com.lige.common.call.api.esl.SwCommonCallEslConstant;
 import com.lige.common.call.api.esl.SwCommonCallEslEventParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 
-public class SwEventHandlerRecordStart implements SwCallSwitchEventHandler {
+class SwEventHandlerRecordStart implements SwCallSwitchEventHandler {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -30,6 +30,11 @@ public class SwEventHandlerRecordStart implements SwCallSwitchEventHandler {
 		
 		return null;
 		
+	}
+
+	@Override
+	public String getName() {
+		return SwCommonCallEslConstant.ESLEVENT_RECORD_START;
 	}
 
 }

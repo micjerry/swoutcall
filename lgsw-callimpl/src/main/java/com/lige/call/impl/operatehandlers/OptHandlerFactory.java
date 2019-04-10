@@ -1,33 +1,25 @@
 package com.lige.call.impl.operatehandlers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.util.List;
+import java.util.Map;
 
 import com.lige.call.impl.api.SwCallOperateHandler;
-import com.lige.common.call.api.oper.SwCommonCallOperConstant;
 
-@Component
 public class OptHandlerFactory {
-	
-	@Autowired 
-	private SwCallOptHandlerHangup hangupHandler;
-	
-	@Autowired 
-	private SwCallOptHandlerTransfer transferHandler;
-	
-	private HashMap<String, SwCallOperateHandler> callOpthandlers;
-	
-	public void initialHandlers() {
-		callOpthandlers  = new HashMap<String, SwCallOperateHandler>();
+	public static Map<String, SwCallOperateHandler> getCallOptHandlers() {
+		List<SwCallOperateHandler> optHandlers = new ArrayList<SwCallOperateHandler>();
+		optHandlers.add(new SwCallOptHandlerHangup());
+		optHandlers.add(new SwCallOptHandlerTransfer());
 		
-		callOpthandlers.put(SwCommonCallOperConstant.CALLSESSION_OPERNAME_HANGUP, hangupHandler);
-		callOpthandlers.put(SwCommonCallOperConstant.CALLSESSION_OPERNAME_TRANSFER, transferHandler);
-	}
-	
-	public HashMap<String, SwCallOperateHandler> createCallHandlers() {
-		return callOpthandlers;
+		HashMap<String, SwCallOperateHandler> optHandlersMap = new HashMap<String, SwCallOperateHandler>();
+		
+		for (SwCallOperateHandler handler: optHandlers) {
+			optHandlersMap.put(handler.getName(), handler);
+		}
+		
+		return optHandlersMap;
 	}
 
 }

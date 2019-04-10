@@ -1,6 +1,5 @@
 package com.lige.call.impl.beans;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,16 +38,16 @@ class SwCallTaskImpl implements SwCallTask {
 
 	private SwCommonCallDialog dialog;
 
-	private HashMap<String, SwCallSwitchEventHandler> eventHandlers;
+	private Map<String, SwCallSwitchEventHandler> eventHandlers;
 
-	private HashMap<String, SwCallOperateHandler> operateHandlers;
+	private Map<String, SwCallOperateHandler> operateHandlers;
 
 	private ConcurrentHashMap<String, SwCallTimerTask> timertasks;
 
 	private SwitchCallChannelImpl channel;
 
-	public SwCallTaskImpl(SwCommonCallSessionCreatePojo req, HashMap<String, SwCallOperateHandler> operateHandlers,
-			HashMap<String, SwCallSwitchEventHandler> eventHandlers) {
+	public SwCallTaskImpl(SwCommonCallSessionCreatePojo req, Map<String, SwCallOperateHandler> operateHandlers,
+			Map<String, SwCallSwitchEventHandler> eventHandlers) {
 		this.id = req.getTaskid();
 		this.userId = req.getUserid();
 		this.robotId = req.getRobotid();

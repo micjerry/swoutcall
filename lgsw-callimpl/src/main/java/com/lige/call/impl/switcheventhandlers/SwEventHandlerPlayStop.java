@@ -16,7 +16,7 @@ import com.lige.common.call.api.esl.SwCommonCallEslConstant;
 import com.lige.common.call.api.esl.SwCommonCallEslEventParser;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
 
-public class SwEventHandlerPlayStop implements SwCallSwitchEventHandler {
+class SwEventHandlerPlayStop implements SwCallSwitchEventHandler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
@@ -48,6 +48,11 @@ public class SwEventHandlerPlayStop implements SwCallSwitchEventHandler {
 		}
 		
 		return null;
+	}
+
+	@Override
+	public String getName() {
+		return SwCommonCallEslConstant.ESLEVENT_PLAYBACK_STOP;
 	}
 
 }

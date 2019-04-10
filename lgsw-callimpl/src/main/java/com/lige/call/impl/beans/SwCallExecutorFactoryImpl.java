@@ -1,28 +1,33 @@
 package com.lige.call.impl.beans;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.util.Map;
 
 import com.lige.call.api.exe.SwCallExecutor;
 import com.lige.call.api.exe.SwCallExecutorFactory;
+import com.lige.call.impl.api.SwCallOperateHandler;
+import com.lige.call.impl.api.SwCallSwitchEventHandler;
 import com.lige.call.impl.operatehandlers.OptHandlerFactory;
 import com.lige.call.impl.switcheventhandlers.EventHandlerFactory;
 import com.lige.common.call.api.oper.SwCommonCallSessionCreatePojo;
 
-@Component
 public class SwCallExecutorFactoryImpl implements SwCallExecutorFactory {
-	@Autowired
-	private OptHandlerFactory optHandlerManager;
 	
-	@Autowired
-	private EventHandlerFactory eventHandlerManager;
+	private Map<String, SwCallSwitchEventHandler> eventHandlers;
+	
+	private Map<String, SwCallOperateHandler> optHandlers;
+
+	
+	public SwCallExecutorFactoryImpl() {
+		eventHandlers = EventHandlerFactory.getCallEventHandlers();
+		optHandlers = OptHandlerFactory.getCallOptHandlers();
+	}
 	
 	@Override
 	public SwCallExecutor create(SwCommonCallSessionCreatePojo req) {
 		
-		SwCallTaskImpl taskImpl = new SwCallTaskImpl(req, optHandlerManager.createCallHandlers(), 
-				eventHandlerManager.createCallHandlers());
+		SwCallTaskImpl taskImpl = new SwCallTaskImpl(req, optHandlers, eventHandlers);
 		
 		return  new SwCallExecutorImpl(taskImpl);
 	}
+	
 }
