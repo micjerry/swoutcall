@@ -27,8 +27,6 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	
 	private SwCallDetectNode curNode;
 	
-	private SwCallState preCallState;
-	
 	private SwCallState callState;
 	
 	private String recordFileName;
@@ -44,7 +42,6 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	SwitchCallChannelImpl(SwCallTaskImpl task) {
 		this.task = task;
 		this.callState = SwCallState.NONE;
-		this.preCallState = SwCallState.NONE;
 		timeStamps = new HashMap<String, Integer>();
 	}
 	
@@ -76,7 +73,6 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	@Override
 	public void setCallState(SwCallState state, SwCommonCallEslEventPojo event) {
 		logger.info("task: {} state change from {} to {}", task.getId(), this.callState, state);
-		this.preCallState = this.callState;
 		this.callState = state;
 		timeStamps.put(state.toString(), Calendar.getInstance().get(Calendar.SECOND));
 		switch (state) {
@@ -95,10 +91,6 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 	@Override
 	public SwCallState getCallState() {
 		return this.callState;
-	}
-
-	public SwCallState getPreCallState() {
-		return preCallState;
 	}
 
 

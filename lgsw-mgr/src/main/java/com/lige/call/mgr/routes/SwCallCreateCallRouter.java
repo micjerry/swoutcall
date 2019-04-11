@@ -120,11 +120,6 @@ public class SwCallCreateCallRouter extends RouteBuilder {
 			return false;
 		}
 
-		if (null == body.getGateway() || "".equals(body.getGateway())) {
-			logger.error("invalid req no gateway");
-			return false;
-		}
-
 		if (null == body.getDialog() || null == body.getDialog().getNodes() || body.getDialog().getNodes().isEmpty()) {
 			logger.error("invalid req dialog");
 			return false;

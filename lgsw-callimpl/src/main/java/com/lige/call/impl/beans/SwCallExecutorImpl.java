@@ -1,6 +1,5 @@
 package com.lige.call.impl.beans;
 
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.lige.call.api.cmd.SwCallReceipt;
 import com.lige.call.api.exe.SwCallExecutor;
 import com.lige.call.impl.api.SwCallOperateHandler;
+import com.lige.call.impl.api.SwCallState;
 import com.lige.call.impl.api.SwCallSwitchEventHandler;
 import com.lige.call.impl.api.SwCallTask;
 import com.lige.call.impl.api.SwCallTimerTask;
@@ -26,83 +26,88 @@ class SwCallExecutorImpl implements SwCallExecutor {
 	public SwCallExecutorImpl(SwCallTask callTask) {
 		this.callTask = callTask;
 	}
-	
+
 	@Override
 	public String toString() {
 		return callTask.toString();
 	}
-	
+
 	@Override
 	public List<SwCallReceipt> handleOperation(SwCommonCallSessionOperPojo operation) {
 		SwCallOperateHandler handler = callTask.getOptHandler(operation.getName());
 		if (handler == null) {
-			logger.error("task: {} operate: {} is not permitted , permited is false", callTask.getId(), operation.getName());
+			logger.error("task: {} operate: {} is not permitted , permited is false", callTask.getId(),
+					operation.getName());
 			return null;
 		}
-		
+
+		SwCallState preState = callTask.getChannel().getCallState();
 		List<SwCallReceipt> commands = null;
-		synchronized(callTask) {
+		synchronized (callTask) {
 			commands = handler.handleOperation(operation, callTask);
 		}
-		
-		callTask.loadNewTimer();
+
+		callTask.loadNewTimer(preState);
 		return commands;
 
 	}
-	
-	
+
 	@Override
 	public List<SwCallReceipt> handleSwitchEvent(SwCommonCallEslEventPojo event) {
 		SwCallSwitchEventHandler handler = callTask.getSwitchEventHandler(SwCommonCallEslEventParser.getName(event));
-		
+
 		if (handler == null) {
-			logger.error("task: {} event: {} can not be handle", 
-					 callTask.getId(), SwCommonCallEslEventParser.getName(event));
+			logger.error("task: {} event: {} can not be handle", callTask.getId(),
+					SwCommonCallEslEventParser.getName(event));
 			return null;
 		}
-		
+
+		SwCallState preState = callTask.getChannel().getCallState();
 		List<SwCallReceipt> commands = null;
-		
-		synchronized(callTask) {
+
+		synchronized (callTask) {
 			commands = handler.handle(event, callTask);
-		}	
-		
-		callTask.loadNewTimer();
-		
+		}
+
+		callTask.loadNewTimer(preState);
+
 		return commands;
 	}
-	
-	
+
 	@Override
 	public List<SwCallReceipt> handleTimer() {
-
-		List<SwCallReceipt> commands = new ArrayList<>();
+		SwCallState preState = callTask.getChannel().getCallState();
+		List<SwCallReceipt> commands = null;
 		Map<String, SwCallTimerTask> timertasks = callTask.getTimerTasks();
 		Iterator<String> iterator = timertasks.keySet().iterator();
 		while (iterator.hasNext()) {
 			String key = (String) iterator.next();
 			SwCallTimerTask timerTask = timertasks.get(key);
-			if (timerTask.isValid() && !timerTask.isExecuted()) {
+			if (timerTask.isValid()) {
 				if (timerTask.isReady()) {
-					synchronized(callTask) {
+					synchronized (callTask) {
 						List<SwCallReceipt> result = timerTask.run();
 						if (result != null) {
+							if (null == commands)
+								commands = new ArrayList<>();
+
 							commands.addAll(result);
 						}
+						
+						timertasks.remove(key);
+						logger.info("task: {} timer:{} executed", callTask.getId(), key);
 					}
-					logger.info("task: {} timer:{} executed", callTask.getId(), key);
 				}
-			}else {
+			} else {
 				logger.info("task: {} remove timer:{}", callTask.getId(), key);
-				iterator.remove();
 				timertasks.remove(key);
 				continue;
 			}
 		}
-		
-		callTask.loadNewTimer();
-		
+
+		callTask.loadNewTimer(preState);
+
 		return commands;
-		
+
 	}
 }

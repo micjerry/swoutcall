@@ -113,6 +113,28 @@ final class SwCallExecutorRouter extends RouteBuilder {
 		Predicate cdr = header(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER).isEqualTo(SwCallMgrProtocol.SWCALL_COMMAND_CDR);
 		Predicate sys = header(SwCallMgrProtocol.SWCALL_CMDTYPE_HEADER).isEqualTo(SwCallMgrProtocol.SWCALL_COMMAND_SYS);
 		
+		//create http route
+		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_HTTP, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_HTTP, this.id))
+		.marshal().json(JsonLibrary.Jackson)
+		.to("http4://127.0.0.1:8081/")
+		.process(responseHandler);
+		
+		//create switch command route
+		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SWCMD, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SWCMD, this.id))
+		.marshal().json(JsonLibrary.Jackson)
+		.to(this.toSwitch);
+		
+		//create cdr route
+		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_CDR, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_CDR, this.id))
+		.marshal().json(JsonLibrary.Jackson)
+		.to(this.toCdr);
+		
+		//create sys command route
+		logger.info("configure {}",id);
+		SwCallReceiptSysHandleBean sysBean = new SwCallReceiptSysHandleBean(this.id);
+		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id))
+		.process(sysBean);	
+		
 		//create main route
 		from(fromOperater).routeId(RoutePrefix.createMainRoute(RouteMain.ROUTE_MAIN_OPER, this.id)).unmarshal().json(JsonLibrary.Jackson, SwCommonCallSessionOperPojo.class)
 		.process(swOperateHandler).split(body())
@@ -140,27 +162,5 @@ final class SwCallExecutorRouter extends RouteBuilder {
 		.when(cdr).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_CDR, this.id))
 		.when(sys).to("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id))
 		.end();
-		
-		//create http route
-		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_HTTP, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_HTTP, this.id))
-		.marshal().json(JsonLibrary.Jackson)
-		.to("http4://127.0.0.1:8081/")
-		.process(responseHandler);
-		
-		//create switch command route
-		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SWCMD, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SWCMD, this.id))
-		.marshal().json(JsonLibrary.Jackson)
-		.to(this.toSwitch);
-		
-		//create cdr route
-		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_CDR, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_CDR, this.id))
-		.marshal().json(JsonLibrary.Jackson)
-		.to(this.toCdr);
-		
-		//create sys command route
-		logger.info("configure {}",id);
-		SwCallReceiptSysHandleBean sysBean = new SwCallReceiptSysHandleBean(this.id);
-		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id))
-		.process(sysBean);	
     }
 }

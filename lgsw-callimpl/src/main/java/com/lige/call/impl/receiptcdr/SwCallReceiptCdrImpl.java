@@ -1,5 +1,7 @@
 package com.lige.call.impl.receiptcdr;
 
+import java.util.HashMap;
+
 import com.lige.call.api.cmd.SwCallReceiptCallback;
 import com.lige.call.api.cmd.SwCallReceiptCdr;
 import com.lige.common.call.api.cdr.SwCommonCallCdrPojo;
@@ -15,6 +17,11 @@ class SwCallReceiptCdrImpl extends SwCallReceiptCdr {
 	public SwCallReceiptCdrImpl(String id, String name) {
 		this.id = id;
 		this.name = name;
+		cdr = new SwCommonCallCdrPojo();
+		
+		cdr.setId(id);
+		cdr.setName(name);
+		cdr.setParameters(new HashMap<String, String>());
 	}
 
 	@Override
@@ -37,8 +44,10 @@ class SwCallReceiptCdrImpl extends SwCallReceiptCdr {
 		return null;
 	}
 
-	public void setCdr(SwCommonCallCdrPojo cdr) {
-		this.cdr = cdr;
+	public SwCommonCallCdrPojo getCdr() {
+		return cdr;
 	}
+	
+	
 
 }

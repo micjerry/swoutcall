@@ -15,15 +15,9 @@ public class SwCallCdrReceiptFactory {
 		if (null == task)
 			return null;
 		
-		SwCallReceiptCdrImpl cdrImpl = new SwCallReceiptCdrImpl(task.getId(), SwCommonCallCdrConstant.CDRNAME_CALL_EVENT);
+		SwCallReceiptCdrImpl cdrImpl = makeCdrTemplate(task, SwCommonCallCdrConstant.CDRNAME_CALL_EVENT);
 		
-		SwCommonCallCdrPojo pojo = new SwCommonCallCdrPojo();
-		pojo.setId(task.getId());
-		pojo.setName(SwCommonCallCdrConstant.CDRNAME_CALL_EVENT);
-		cdrImpl.setCdr(pojo);
-		
-		addCommonParameters(pojo, task);
-		addCallParameters(pojo, task);
+		addCallParameters(cdrImpl.getCdr(), task);
 		
 		return cdrImpl;
 	}
@@ -32,13 +26,10 @@ public class SwCallCdrReceiptFactory {
 		if (null == task || task.getChannel().getPlayAndDetected() == null)
 			return null;
 		
-		SwCallReceiptCdrImpl cdrImpl = new SwCallReceiptCdrImpl(task.getId(), SwCommonCallCdrConstant.CDRNAME_CALL_DIALOG);
-		SwCommonCallCdrPojo pojo = new SwCommonCallCdrPojo();
-		pojo.setId(task.getId());
-		pojo.setName(SwCommonCallCdrConstant.CDRNAME_CALL_EVENT);
+		SwCallReceiptCdrImpl cdrImpl = makeCdrTemplate(task, SwCommonCallCdrConstant.CDRNAME_CALL_DIALOG);
 		
-		addCommonParameters(pojo, task);
-		addDialogPlayParameters(pojo, task);
+		addDialogPlayParameters(cdrImpl.getCdr(), task);
+
 		return cdrImpl;
 	}
 	
@@ -46,13 +37,10 @@ public class SwCallCdrReceiptFactory {
 		if (null == task || task.getChannel().getPlayAndDetected() == null)
 			return null;
 		
-		SwCallReceiptCdrImpl cdrImpl = new SwCallReceiptCdrImpl(task.getId(), SwCommonCallCdrConstant.CDRNAME_CALL_DIALOG);
-		SwCommonCallCdrPojo pojo = new SwCommonCallCdrPojo();
-		pojo.setId(task.getId());
-		pojo.setName(SwCommonCallCdrConstant.CDRNAME_CALL_EVENT);
+		SwCallReceiptCdrImpl cdrImpl = makeCdrTemplate(task, SwCommonCallCdrConstant.CDRNAME_CALL_DIALOG);
 		
-		addCommonParameters(pojo, task);
-		addDialogDetectParameters(pojo, task);
+		addDialogDetectParameters(cdrImpl.getCdr(), task);
+		
 		return cdrImpl;
 	}
 	
@@ -60,12 +48,16 @@ public class SwCallCdrReceiptFactory {
 		if (null == task)
 			return null;
 		
-		SwCallReceiptCdrImpl cdrImpl = new SwCallReceiptCdrImpl(task.getId(), SwCommonCallCdrConstant.CDRNAME_CALL_DIALOG);
-		SwCommonCallCdrPojo pojo = new SwCommonCallCdrPojo();
-		pojo.setId(task.getId());
-		pojo.setName(SwCommonCallCdrConstant.CDRNAME_CALL_RECORD);
-		addCommonParameters(pojo, task);
-		addRecordParameters(pojo, task);
+		SwCallReceiptCdrImpl cdrImpl = makeCdrTemplate(task, SwCommonCallCdrConstant.CDRNAME_CALL_DIALOG);
+
+		addRecordParameters(cdrImpl.getCdr(), task);
+		
+		return cdrImpl;
+	}
+	
+	private static SwCallReceiptCdrImpl makeCdrTemplate(SwCallTask task, String name) {
+		SwCallReceiptCdrImpl cdrImpl = new SwCallReceiptCdrImpl(task.getId(), name);
+		addCommonParameters(cdrImpl.getCdr(), task);
 		
 		return cdrImpl;
 	}

@@ -34,6 +34,6 @@ public interface SwCallTask {
 	
 	public SwitchCallChannel getChannel();
 	
-	public void loadNewTimer();
+	public void loadNewTimer(SwCallState preState);
 	
 }

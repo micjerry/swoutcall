@@ -67,7 +67,7 @@ public class SwCallSwitchReceiptFactory {
 		callCmdPojo.setCmd(COMMAND_NAME_SWITCH_CALL);
 		StringBuilder callArgSb = new StringBuilder();
 		callArgSb.append("{");
-		callArgSb.append("callseqid=");
+		callArgSb.append("origination_uuid=");
 		callArgSb.append(uuid);
 		if ((null != callerNumber) && (!"".equals(callerNumber))) {
 			callArgSb.append(",");

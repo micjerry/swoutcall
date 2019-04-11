@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.lige.call.impl.api.SwCallConstant;
 import com.lige.call.impl.api.SwCallOperateHandler;
+import com.lige.call.impl.api.SwCallState;
 import com.lige.call.impl.api.SwCallSwitchEventHandler;
 import com.lige.call.impl.api.SwCallTask;
 import com.lige.call.impl.api.SwCallTimerTask;
@@ -148,11 +149,10 @@ class SwCallTaskImpl implements SwCallTask {
 	}
 
 	@Override
-	public void loadNewTimer() {
+	public void loadNewTimer(SwCallState preState) {
 		synchronized (this) {
-			if (channel.getPreCallState() != channel.getCallState()) {
-				logger.info("call: {} state changed from: {} to: {}", this.getId(), channel.getPreCallState(),
-						channel.getCallState());
+			if (preState != channel.getCallState()) {
+				logger.info("call: {} state changed from: {} to: {}", this.getId(), preState, channel.getCallState());
 				SwCallTimeoutState timer = null;
 				switch (channel.getCallState()) {
 				case CREATING:
@@ -177,6 +177,7 @@ class SwCallTaskImpl implements SwCallTask {
 					logger.info("call: {} new timer: {} add.", this.getId(), timer.getName());
 					timertasks.put(timer.getName(), timer);
 				}
+				
 			}
 		}
 	}

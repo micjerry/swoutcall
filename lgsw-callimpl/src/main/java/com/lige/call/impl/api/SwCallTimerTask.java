@@ -11,7 +11,6 @@ public interface SwCallTimerTask {
 	
 	public boolean isReady();
 	
-	public boolean isExecuted();
-	
 	public List<SwCallReceipt> run();
+	
 }

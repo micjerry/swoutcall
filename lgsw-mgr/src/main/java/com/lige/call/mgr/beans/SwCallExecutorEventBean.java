@@ -25,7 +25,7 @@ public class SwCallExecutorEventBean implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		SwCommonCallEslEventPojo event = (SwCommonCallEslEventPojo)exchange.getIn().getBody();
 		
-		logger.info("@@@received event from switch");
+		logger.debug("@@@received event: {} uuid: {} from switch", SwCommonCallEslEventParser.getName(event), SwCommonCallEslEventParser.getSwitchChannelId(event));
 		List<SwCallReceipt> commands = executor.handleSwitchEvent(event);
 		if (commands == null) {
 			logger.info("There is no command for event: name {}", SwCommonCallEslEventParser.getName(event));
