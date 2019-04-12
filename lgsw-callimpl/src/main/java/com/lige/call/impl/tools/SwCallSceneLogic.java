@@ -32,6 +32,11 @@ public class SwCallSceneLogic {
 			
 			String[] matchs = branch.getMatch().split("-");
 			for (String match:matchs) {
+				if (detected.contains(match)) {
+					matchedBranch = branch;
+					break;
+				}
+				
 				String matchPinyin = PinyinTool.getPinyin(match);
 				if (detectedPinyin.contains(matchPinyin)) {
 					matchedBranch = branch;
@@ -41,6 +46,7 @@ public class SwCallSceneLogic {
 		}
 		
 		if (null != matchedBranch) {
+			logger.debug("node: {} branch: {} matched.", curNode.getName(), matchedBranch.getMatch());
 			for (SwCommonCallDialogNode node : dialog.getNodes()) {
 				if (node.getName().equalsIgnoreCase(matchedBranch.getNode())) {
 					return node;

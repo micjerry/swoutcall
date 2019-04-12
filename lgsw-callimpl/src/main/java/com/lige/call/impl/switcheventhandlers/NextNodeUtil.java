@@ -37,6 +37,7 @@ class NextNodeUtil {
 		SwCommonCallDialogNode nextNode = SwCallSceneLogic.getNextNode(logicNode.getNodeDefine(), playAndDetected.getDetected(), task.getDialog());
 		
 		if (null == nextNode) {
+			logger.debug("task: {} node: {} no next node found try system", task.getId(), getNodeName(task));
 			SwCommonCallDialogNode sysNode = getSysNode(task);
 			
 			if (null == sysNode) {
@@ -44,6 +45,7 @@ class NextNodeUtil {
 				return results;
 			}
 			
+			logger.info("task: {} node: {} sysnode: {} found", task.getId(), getNodeName(task), sysNode.getSysType());
 			task.getChannel().setPlayAndDetected(sysNode);
 			results.add(SwCallSwitchReceiptFactory.createPlayAndDetectCommand(task));
 			
@@ -77,7 +79,7 @@ class NextNodeUtil {
 		SwCallDetectNode logicNode = task.getChannel().getLogicNode();
 		
 		if (null == task.getDialog().getSyses() || null == logicNode) {
-			logger.error("task: {} cur node: {}, no sys nodes", task.getId(), getNodeName(task));
+			logger.info("task: {} cur node: {}, no sys nodes", task.getId(), getNodeName(task));
 			return  null;
 		}
 		

@@ -146,6 +146,7 @@ class SwitchCallChannelImpl implements SwitchCallChannel {
 
 	@Override
 	public void gotoLogicNode(SwCommonCallDialogNode node) {
+		logger.info("task: {} goto node {}", task.getId(), node.getName());
 		this.logicNode = AsrFactory.makeLogicNode(node);
 		this.setPlayAndDetected(node);
 	}
