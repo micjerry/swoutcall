@@ -3,7 +3,7 @@ package com.lige.call.mgr.utils;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-public class SwCallStopExecutorService {
+public class SwCallExecutorService {
 
 	private static ScheduledExecutorService executor = null;
 	

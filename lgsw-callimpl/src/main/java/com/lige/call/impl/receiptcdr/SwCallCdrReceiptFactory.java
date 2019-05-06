@@ -69,6 +69,8 @@ public class SwCallCdrReceiptFactory {
 		paras.put(SwCommonCallCdrConstant.CDRFIELD_ALL_GATEWAY, task.getGateway());
 		paras.put(SwCommonCallCdrConstant.CDRFIELD_ALL_CALLER, task.getCallerNumber());
 		paras.put(SwCommonCallCdrConstant.CDRFIELD_ALL_CALLEE, task.getCalleeNumber());
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_ALL_GROUP, task.getGroupId());
+		paras.put(SwCommonCallCdrConstant.CDRFIELD_ALL_DIALOG, task.getDialogId());
 	}
 	
 	private static void addCallParameters(SwCommonCallCdrPojo pojo, SwCallTask task) {

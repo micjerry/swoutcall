@@ -20,6 +20,10 @@ class SwCallTaskImpl implements SwCallTask {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private String id;
+	
+	private String groupId;
+	
+	private String dialogId;
 
 	private String userId;
 
@@ -50,6 +54,7 @@ class SwCallTaskImpl implements SwCallTask {
 	public SwCallTaskImpl(SwCommonCallSessionCreatePojo req, Map<String, SwCallOperateHandler> operateHandlers,
 			Map<String, SwCallSwitchEventHandler> eventHandlers) {
 		this.id = req.getTaskid();
+		this.groupId = req.getGroupid();
 		this.userId = req.getUserid();
 		this.robotId = req.getRobotid();
 		this.callerNumber = req.getCallernumber();
@@ -58,6 +63,7 @@ class SwCallTaskImpl implements SwCallTask {
 		this.gateWay = req.getGateway();
 		this.maxDuration = req.getMaxduration();
 		this.dialog = req.getDialog();
+		this.dialogId = req.getDialog().getId();
 		this.ringDuration = req.getRingduration();
 
 		this.operateHandlers = operateHandlers;
@@ -180,6 +186,16 @@ class SwCallTaskImpl implements SwCallTask {
 				
 			}
 		}
+	}
+
+	@Override
+	public String getGroupId() {
+		return groupId;
+	}
+
+	@Override
+	public String getDialogId() {
+		return dialogId;
 	}
 
 }

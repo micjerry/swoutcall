@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import com.lige.call.api.cmd.SwCallReceipt;
 import com.lige.call.api.cmd.SwCallReceiptSys;
-import com.lige.call.mgr.utils.SwCallStopExecutorService;
+import com.lige.call.mgr.routes.SwCallContext;
+import com.lige.call.mgr.scheduler.CallSchedulerMgr;
+import com.lige.call.mgr.utils.SwCallExecutorService;
 
 public class SwCallReceiptSysHandleBean implements Processor{
 
@@ -15,8 +17,14 @@ public class SwCallReceiptSysHandleBean implements Processor{
 
 	private String callId;
 	
-	public SwCallReceiptSysHandleBean(String callId) {
+	private String groupId;
+	
+	private SwCallContext context;
+	
+	public SwCallReceiptSysHandleBean(String callId, String groupId, SwCallContext context) {
 		this.callId = callId;
+		this.groupId = groupId;
+		this.context = context;
 	}
 	
 	public void process(Exchange exchange) throws Exception {
@@ -34,7 +42,9 @@ public class SwCallReceiptSysHandleBean implements Processor{
 
 		if (syscomand.getName().equalsIgnoreCase(SwCallReceipt.RECEIPT_SYS_CALLEND)) {
 			SwCallStopBean stopBean = new SwCallStopBean(exchange.getContext(), callId);
-			SwCallStopExecutorService.getExecutor().submit(stopBean);
+			SwCallExecutorService.getExecutor().submit(stopBean);
+			
+			CallSchedulerMgr.commitNextCall(groupId, context);
 		}
 	}
 }

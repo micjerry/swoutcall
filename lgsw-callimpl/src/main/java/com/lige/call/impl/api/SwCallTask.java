@@ -8,6 +8,10 @@ public interface SwCallTask {
 
 	public String getId();
 	
+	public String getGroupId();
+	
+	public String getDialogId();
+	
 	public String getUserId();
 	
 	public String getRobotId();

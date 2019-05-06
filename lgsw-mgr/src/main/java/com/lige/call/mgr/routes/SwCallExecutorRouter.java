@@ -19,21 +19,29 @@ import com.lige.call.mgr.routes.RoutePrefix.RouteSecond;
 import com.lige.common.call.api.SwCommonCallConstant;
 import com.lige.common.call.api.config.mq.SwCommonMqConfig;
 import com.lige.common.call.api.esl.SwCommonCallEslEventPojo;
+import com.lige.common.call.api.oper.SwCommonCallSessionCreatePojo;
 import com.lige.common.call.api.oper.SwCommonCallSessionOperPojo;
 
-final class SwCallExecutorRouter extends RouteBuilder {
+public final class SwCallExecutorRouter extends RouteBuilder {
 	private final static Logger logger = LoggerFactory.getLogger(SwCallExecutorRouter.class);
 	private String fromOperater;
 	private String toSwitch;
 	private String fromSwitch;
 	private String toCdr;
 	private String id;
+	private String groupId;
+	private SwCallContext callContext;
 	private SwCallExecutorOperateBean swOperateHandler;
 	private SwCallExecutorEventBean switchEventBean;
 	private SwCallHttpResponseBean responseHandler;
 	private SwCallExecutorTimerBean conferTimerBean;
-	SwCallExecutorRouter(String id, SwCallExecutor control, RabbitmqConfig config, String swid, SwCallHttpResponseBean responseHandler) {
-		String cmdRouteKey = SwCommonCallConstant.CALL_CMD_ROUTING + swid;
+	public SwCallExecutorRouter(SwCommonCallSessionCreatePojo pojo, SwCallExecutor control, SwCallContext callContext) {
+		this.callContext = callContext;
+		this.id = pojo.getTaskid();
+		this.groupId = pojo.getGroupid();
+		this.responseHandler = callContext.getResponseBean();
+		RabbitmqConfig config = callContext.getMqConfig();
+		String cmdRouteKey = SwCommonCallConstant.CALL_CMD_ROUTING + pojo.getSwid();
 		StringBuffer fromOperaterBuffer = new StringBuffer(SwCommonMqConfig.MQ_SYS_URL);
 		fromOperaterBuffer.append(SwCommonMqConfig.MQ_SYS_PORT);
 		fromOperaterBuffer.append("/" + SwCommonMqConfig.MQ_EXCHANGE_OPER + "?");
@@ -42,7 +50,7 @@ final class SwCallExecutorRouter extends RouteBuilder {
 		fromOperaterBuffer.append("password=" + config.getPassword() + "&");
 		fromOperaterBuffer.append("autoAck=true&");
 		fromOperaterBuffer.append("exchangeType=direct&");
-		fromOperaterBuffer.append("routingKey=" + id + "&");
+		fromOperaterBuffer.append("routingKey=" + this.id + "&");
 		fromOperaterBuffer.append("durable=false&");
 		fromOperaterBuffer.append("autoDelete=false&");
 		fromOperaterBuffer.append("declare=true");
@@ -83,7 +91,7 @@ final class SwCallExecutorRouter extends RouteBuilder {
 		fromSwitchSb.append("username=" + config.getUserName() + "&");
 		fromSwitchSb.append("password=" + config.getPassword() + "&");
 		fromSwitchSb.append("exchangeType=direct&");
-		fromSwitchSb.append("routingKey=" + id + "&");
+		fromSwitchSb.append("routingKey=" + this.id + "&");
 		fromSwitchSb.append("durable=false&");
 		fromSwitchSb.append("autoDelete=false&");
 		fromSwitchSb.append("declare=true");
@@ -91,8 +99,6 @@ final class SwCallExecutorRouter extends RouteBuilder {
 		this.conferTimerBean = new SwCallExecutorTimerBean(control);
 		this.swOperateHandler = new SwCallExecutorOperateBean(control);
 		this.switchEventBean = new SwCallExecutorEventBean(control);
-		this.responseHandler = responseHandler;
-		this.id = id;
 	}
 	
 	@Override
@@ -131,7 +137,7 @@ final class SwCallExecutorRouter extends RouteBuilder {
 		
 		//create sys command route
 		logger.info("configure {}",id);
-		SwCallReceiptSysHandleBean sysBean = new SwCallReceiptSysHandleBean(this.id);
+		SwCallReceiptSysHandleBean sysBean = new SwCallReceiptSysHandleBean(this.id, this.groupId, callContext);
 		from("direct:"+RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id)).routeId(RoutePrefix.createSecondRoute(RouteSecond.ROUTE_SECOND_SYS, this.id))
 		.process(sysBean);	
 		
