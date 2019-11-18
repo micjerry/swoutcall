@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import com.lige.call.mgr.scheduler.CallSchedulerMgr;
 import com.lige.common.call.api.oper.SwCommonCallSessionCreateMultiPojo;
-import com.lige.common.call.api.oper.SwCommonCallSessionCreatePojo;
 
 @Component
 public class SwCallCreateCallRouter extends RouteBuilder {
@@ -35,7 +34,7 @@ public class SwCallCreateCallRouter extends RouteBuilder {
 		fromUrl.append(":");
 		fromUrl.append(port);
 		fromUrl.append("/swcall/createcall");
-		from(fromUrl.toString()).unmarshal().json(JsonLibrary.Jackson, SwCommonCallSessionCreatePojo.class)
+		from(fromUrl.toString()).unmarshal().json(JsonLibrary.Jackson, SwCommonCallSessionCreateMultiPojo.class)
 				.process(new Processor() {
 					public void process(Exchange exchange) throws Exception {
 						Message message = exchange.getIn();
